@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	{{> includes/head}}
+	<meta charset="UTF-8">
+	<title>{{title}}| Chat</title>
+</head>
+
+<body>
+	<div class="jumbotron">
+		<h1 class="center">Let's do some fun!</h1>
+	</div>
+	<br>
+	<br>
+	<div class="container">
+		<div class="col m12" style="margin-left: 10%;color: #fff;">
+			<form class="col s12" method="POST" action="/auth/login">
+				<div class="row">
+					<div class="input-field col s12">
+						<label>Username</label>
+						<input type="text" name="username">
+					</div>
+				</div>
+				<h3>Note: Only one user name per IP address</h3>
+				<div align="center">
+				<button class="waves-effect waves-light btn">Submit</button>
+				</div>
+    		</form>
+		</div>
+	</div>
+</body>
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<!--<script src="/dist/script.js"></script>-->
+</html>

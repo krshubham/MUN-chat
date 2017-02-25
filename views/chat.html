@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{> includes/head-chat}}
+    <title>Chat</title>
+</head>
+<body>
+<div class="container">
+    <div class="card-panel black" align="center">
+        <h1 id="welcome">E2E chat</h1>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col m3 s12">
+            <h3>Online Users</h3>
+            <div class="online" id="online"></div>
+        </div>
+        <div class="messages col m9 s12" id="messages">
+        </div>
+    </div>
+</div>
+<div id="input-box">
+    <form onsubmit="getMessage(event)">
+        <input type="text" class="chat-input col m6 s12" placeholder="Type Here..." id="chatmsg">
+        <input type="text" class="chat-input col m6 s12" placeholder="user name" id="privmsg">
+        <button class="waves-effect waves-light btn" type="submit">Submit</button>
+    </form>
+</div>
+</body>
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/xss.min.js"></script>
+</html>
