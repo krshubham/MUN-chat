@@ -28,7 +28,7 @@ exports = module.exports = function (io) {
                             })
                                 .catch(function (err) {
                                     socket.emit('fatalerr', {
-                                        message: `please try logging in after some time`
+                                        message: 'please try logging in after some time'
                                     });
                                     console.log(err);
                                 });
@@ -51,82 +51,6 @@ exports = module.exports = function (io) {
                     console.log(err);
                 });
         }
-        socket.on('publicmsg', function (data) {
-            if (data.token) {
-                try {
-                    var decoded = jwt.verify(data.token, secret);
-                    if (decoded) {
-                        /*
-                         * decoded[object Object]
-                         * { data:
-                         *   { _id: 'mymongoid',
-                         *   username: 'something',
-                         *   ip: 'somecoolIP' },
-                         * iat: 1484019275,
-                         * exp: 1484022875
-                         * }
-                         */
-                        var messages = maindb.get().collection('messages');
-                        messages.insertOne({
-                            data: xss(data.data),
-                            username: xss(decoded.data.username)
-                        }).then(function (data) {
-                            assert.notEqual(data, null);
-                        })
-                            .catch(function (err) {
-                                console.log(err);
-                            });
-                        socket.emit('pubmsg', {
-                            data: data.data,
-                            username: decoded.data.username
-                        });
-                        socket.broadcast.emit('pubmsg', {
-                            data: data.data,
-                            username: decoded.data.username
-                        });
-                    }
-                }
-                catch (err) {
-                    socket.emit('jwterror', {
-                        message: `Please Login again!`
-                    });
-                }
-            }
-        });
-
-        socket.on('getData', function (data) {
-            if (data.token) {
-                try {
-                    var decoded = jwt.verify(data.token, secret);
-                    if (decoded) {
-                        var messages = maindb.get().collection('messages');
-                        var onlineUsers = maindb.get().collection('online');
-                        messages.find({}).toArray(function (err, docs) {
-                            assert.equal(err, null);
-                            onlineUsers.find({}).toArray(function (err, people) {
-                                console.log(people);
-                                assert.equal(err, null);
-                                socket.emit('printLastSession', {
-                                    data: docs,
-                                    users: people
-                                });
-                            });
-                        });
-                    }
-                }
-                catch (err) {
-                    console.log('line 60 main-app err with jwt verify');
-                    console.log(err);
-                }
-            }
-            else {
-                return;
-            }
-        });
-        socket.on('privatemsg',function(data){
-            console.log(data);
-        });
-//TODO: write the logic for removing a user frmo online list while disconnecting
         socket.on('disconnect', function () {
             var address = socket.handshake.address;
             var onlineUsers = maindb.get().collection('online');

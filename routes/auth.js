@@ -16,7 +16,7 @@ function login(req, res) {
             if (u.length > 10) {
                 console.log('username length more than 10 chars');
                 return res.render('error', {
-                    message: `The username exceeded the length of 10 characters. Try Again!`
+                    message: 'The username exceeded the length of 10 characters. Try Again!'
                 });
             }
 
@@ -24,42 +24,27 @@ function login(req, res) {
             //let's remove some malicious things
             u = xss(u);
             //all fine
-            //lets now check in the db for the same username with the ip if its available
             var users = db.get().collection('Users');
-            users.findOne({ip: ip}, function (err,person) {
+            users.findOne({username: u}, function (err,person) {
                 assert.equal(err,null);
-                //if the person is found, check the ip address used
+                var token = jwt.sign({
+                    person: person,
+                    expiresIn: 300
+                },secret);
                 if(person){
-                    if(u !== person.username){
-                        return res.render('error',{
-                            message: 'This is not the ip address of: '+ u
-                        });
-                    }
-                    else{
-                        //now the user is verified lets give him the token of success and send him to the chat page
-                        var token = jwt.sign({
-                            data: person
-                        },secret,{
-                            expiresIn: 60*60
-                        });
-                        return res.redirect('/chat/'+token);
-                    }
+                    console.log(person);
+                    res.redirect('/chat/'+token);
                 }
                 else{
-                    //there is no username with this ip, so no issues lets save this user
-                    users.insertOne({username: u, ip: ip}, function (err,done) {
-                        assert.equal(err,null);
-                        console.log('new user inserted');
-                        var token = jwt.sign({
-                            data: {
-                                username: u,
-                                ip: ip
-                            }
-                        },secret,{
-                            expiresIn: 60 * 60
+                    console.log('new user');
+                    users.insertOne({username: u}).then(function () {
+                        console.log('the new user was inserted');
+                        res.redirect('/chat/'+token)
+                    })
+                        .catch(function (err) {
+                            console.log('Error: on line 40 in auth.js');
+                            console.log(err);
                         });
-                        res.redirect('/chat/'+token);
-                    });
                 }
             });
         }

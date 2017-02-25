@@ -1,62 +1,27 @@
-@import url('https://fonts.googleapis.com/css?family=Lato');
-
-body{
-    background-color: #000;
-    color: #0F0;
-    font-family: 'Lato', sans-serif;
-    overflow: auto;
+div.jumbotron{
+    text-align: center;
 }
-input[type=text]{
-    border-bottom: none;
-    font-size: 2em;
-}
-
-input[type=text]:hover{
-    border-bottom-color: #fff !important;
-}
-
-input[type=text]:focus{
-    border-bottom-color: #0F0 !important;
-}
-
-::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-    color: #0F0;
-}
-::-moz-placeholder { /* Firefox 19+ */
-    color: #0F0;
-}
-:-ms-input-placeholder { /* IE 10+ */
-    color: #0F0;
-}
-:-moz-placeholder { /* Firefox 18- */
-    color: #0F0;
-}
-
-.chat-p{
-    display: inline;
-    margin-right: 1em;
-    font-size: 1.2em;
-    padding-top: 10px;
-}
-
-#prompt{
-    font-size: 1.5em;
-    color: #0F0;
-}
-
-#input-box{
-    bottom: 20px;
+div#inputBox{
     position: fixed;
-    width: 80%;
-    margin-right: 50px;
-    margin-left: 50px;
+    width: 60%;
+    bottom: 0;
+    z-index: 1;
+}
+
+div.message-card{
+    border-radius: 1.2em;
 }
 
 div.messages{
-    overflow-y: auto;
-    height: 400px;
+    height: 100%;
+    overflow: scroll;
 }
-div.online{
-    overflow-y: auto;
-    height: 200px;
+
+h3.message-card-title{
+    text-align: left;
+}
+
+h3#online-user-heading{
+    position: absolute;
+    left: 10px;
 }

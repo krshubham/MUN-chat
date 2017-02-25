@@ -13,9 +13,11 @@ function init(req,res) {
     try{
         assert.notEqual(token, undefined);
         var decoded = jwt.verify(token, secret);
+        console.log(decoded);
         //TODO: the chat connection using sockets
         res.render('chat',{
-            token: token
+            token: token,
+            user: decoded.person
         });
 
     }

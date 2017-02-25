@@ -5,27 +5,60 @@
     <title>Chat</title>
 </head>
 <body>
-<div class="container">
-    <div class="card-panel black" align="center">
-        <h1 id="welcome">E2E chat</h1>
+<nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="#">VITC MUN</a>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Public<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">One to One</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Group</a>
+            </li>
+        </ul>
     </div>
+</nav>
+<div class="jumbotron">
+    <h1>Welcome to MUN Chat</h1>
 </div>
-<div class="container">
+<div class="container-fluid">
     <div class="row">
-        <div class="col m3 s12">
-            <h3>Online Users</h3>
-            <div class="online" id="online"></div>
+        <div class="col-md-4">
+            <h3 id="online-user-heading">Online Users:</h3>
         </div>
-        <div class="messages col m9 s12" id="messages">
+        <div class="col-md-8">
+            <div class="messages">
+                <div class="card card-outline-success mb-3 text-justify message-card">
+                    <div class="card-block">
+                        <h3 class="card-title message-card-title">Kumar Shubham</h3>
+                        <blockquote class="card-blockquote">
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae dolorem est excepturi laborum natus, nostrum repellendus ut! Aliquid aut distinctio doloremque facere incidunt molestias necessitatibus, non nostrum perspiciatis quae totam!
+                        </blockquote>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <div id="inputBox">
+                        <form>
+                            <div class="form-group">
+                                <label for="message">Message:</label>
+                                <input type="email" class="form-control" id="message"
+                                       placeholder="Enter your message here">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-<div id="input-box">
-    <form onsubmit="getMessage(event)">
-        <input type="text" class="chat-input col m6 s12" placeholder="Type Here..." id="chatmsg">
-        <input type="text" class="chat-input col m6 s12" placeholder="user name" id="privmsg">
-        <button class="waves-effect waves-light btn" type="submit">Submit</button>
-    </form>
 </div>
 </body>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
