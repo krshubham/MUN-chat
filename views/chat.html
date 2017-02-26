@@ -30,22 +30,49 @@
 </div>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <h3 id="online-user-heading">Online Users:</h3>
+            <div class="online-users" style="overflow: scroll;height: 400px;">
+                <div class="list-group" r>
+                    <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
+                    <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
+                    <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
+                    <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
+                    <a href="#" class="list-group-item list-group-item-action disabled">Vestibulum at eros</a>
+                    <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
+                    <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
+                    <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
+                    <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
+                    <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
+                    <a href="#" class="list-group-item list-group-item-action disabled">Vestibulum at eros</a>
+                    <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
+                    <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
+                    <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
+                    <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
+                    <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
+                    <a href="#" class="list-group-item list-group-item-action disabled">Vestibulum at eros</a>
+                    <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
+                </div>
+            </div>
         </div>
-        <div class="col-md-8">
-            <div class="messages">
-                <div class="card card-outline-success mb-3 text-justify message-card">
-                    <div class="card-block">
-                        <h3 class="card-title message-card-title">Kumar Shubham</h3>
-                        <blockquote class="card-blockquote">
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae dolorem est excepturi laborum natus, nostrum repellendus ut! Aliquid aut distinctio doloremque facere incidunt molestias necessitatibus, non nostrum perspiciatis quae totam!
-                        </blockquote>
+        <div class="col-md-9">
+            <h3>Public Terminal</h3>
+            <div class="row">
+                <div class="messages">
+                    <div class="card card-outline-success mb-3 text-justify message-card">
+                        <div class="card-block">
+                            <h3 class="card-title message-card-title">Kumar Shubham</h3>
+                            <blockquote class="card-blockquote">
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae dolorem est excepturi
+                                laborum natus, nostrum repellendus ut! Aliquid aut distinctio doloremque facere incidunt
+                                molestias necessitatibus, non nostrum perspiciatis quae totam!
+                            </blockquote>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 col-sm-12">
+                <div class="col-md-10 col-sm-10">
                     <div id="inputBox">
                         <form>
                             <div class="form-group">
@@ -61,6 +88,12 @@
     </div>
 </div>
 </body>
+<script>
+    $(document).ready(function () {
+        var el = document.querySelector('div.online-users');
+        el.style.height = window.innerHeight - el.offsetHeight + 'px';
+    });
+</script>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script src="/js/main.js"></script>
 <script src="/js/xss.min.js"></script>

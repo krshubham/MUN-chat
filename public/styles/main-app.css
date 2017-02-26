@@ -1,27 +1,33 @@
-div.jumbotron{
+div.jumbotron {
     text-align: center;
 }
-div#inputBox{
+
+div#inputBox {
     position: fixed;
-    width: 60%;
+    width: 70% !important;
+    overflow: hidden;
     bottom: 0;
     z-index: 1;
 }
 
-div.message-card{
+div.message-card {
     border-radius: 1.2em;
 }
 
-div.messages{
+div.messages {
     height: 100%;
     overflow: scroll;
 }
 
-h3.message-card-title{
+h3.message-card-title {
     text-align: left;
 }
 
-h3#online-user-heading{
-    position: absolute;
-    left: 10px;
+h3#online-user-heading {
+    text-align: left;
+}
+
+div.online-users {
+    overflow: scroll;
+    height: 512px;
 }
