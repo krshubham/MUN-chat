@@ -12,57 +12,26 @@ var xss = require('xss');
 exports = module.exports = function (io) {
     var app = io.of('/app');
 
+    var onlineClients = [];
     app.on('connection', function (socket) {
-        var users = maindb.get().collection('Users');
-        if (socket) {
-            users.findOne({ip: socket.handshake.address})
-                .then(function (person) {
-                    if (person) {
-                        delete person._id;
-
-                        var onlineUsers = maindb.get().collection('online');
-                        var sameuser = onlineUsers.find(person);
-                        sameuser.forEach(function (user) {
-                            onlineUsers.remove(user).then(function () {
-                                //nothing to do for now
-                            })
-                                .catch(function (err) {
-                                    socket.emit('fatalerr', {
-                                        message: 'please try logging in after some time'
-                                    });
-                                    console.log(err);
-                                });
-                        });
-                        onlineUsers.insertOne(person).then(function () {
-                            console.log('online user inserted');
-                            socket.broadcast.emit('user connected', {
-                                user: person
-                            });
-                        })
-                            .catch(function (err) {
-                                socket.emit('fatalerr', {
-                                    message: 'Please try to log in after some time'
-                                });
-                                console.log(err);
-                            });
-                    }
-                })
-                .catch(function (err) {
-                    console.log(err);
-                });
+        var connectedClients = app.server.engine.clients;
+        for (var clientId in connectedClients) {
+            onlineClients.push(clientId);
         }
+
+        var messages = maindb.get().collection('messages');
+        socket.on('newMessage', function (message) {
+            var socketId = socket.conn.id;
+            console.log(message);
+            messages.insertOne({message: message}).then(function () {
+                console.log('data inserted');
+            });
+            app.emit('newMessage',message);
+        });
+
+
         socket.on('disconnect', function () {
             var address = socket.handshake.address;
-            var onlineUsers = maindb.get().collection('online');
-            onlineUsers.remove({ip: address}).then(function () {
-                console.log('user disconnected and removed from the database');
-            })
-                .catch(function (err) {
-                    socket.emit('fatalerr',{
-                        message: 'Please try to login after some time'
-                    });
-                    console.log(err);
-                })
         });
     });
 

@@ -10,102 +10,48 @@
 
 var socket = io.connect('/app');
 
-function setTitle(text){
+function setTitle(text) {
     var title = document.getElementsByTagName('title')[0];
     title.innerHTML = text;
 }
 
-function getMessage(e) {
+socket.on('connect', function () {
+    console.log('connected');
+    setTitle('connected | MUN')
+});
+
+function sendMessage(e) {
     e.preventDefault();
-    var message = e.target.getElementsByTagName('input')[0].value;
-    var username = e.target.getElementsByTagName('input')[1].value;
-    console.log(message,username);
-    message.trim();
-    if(message.match(/^\s*$/gi)){
-        Materialize.toast('Blank message not allowed',2000);
-        $('#chatmsg').val('');
-        return false;
-    }
-    if(username.length && !username.match(/^\s*$/gi)){
-        socket.emit('privatemsg',{
-            data: filterXSS(message),
-            token: filterXSS(location.pathname.split('/')[2])
-        });
-    }
-    else{
-        socket.emit('publicmsg', {
-        data: filterXSS(message),
-        token: filterXSS(location.pathname.split('/')[2])
+    var hiddenel = e.target.getElementsByTagName('input')[0];
+    var uname = hiddenel.getAttribute('data-username');
+    var uid = hiddenel.getAttribute('data-id');
+    var message = e.target.querySelector('input#message').value;
+    //purify
+    message = filterXSS(message);
+    console.log(message);
+    socket.emit('newMessage', {
+        message: message,
+        username: uname,
+        userId: uid
+        //TODO: add an array containing the client to whom message is to be sent
     });
-    }
-    $('#chatmsg').val('');
-    $('#privmsg').val('');
 }
 
-function printMessage(data){
-    var html = `<div class="card white-text black">
-            <h3>Message: ${data.data}</h3><br>
-            <strong>By: ${data.username}</strong>          
-    </div>`;
+socket.on('newMessage', function (data) {
+    var html = '<div class="card card-outline-success mb-3 text-justify message-card">'+
+                        '<div class="card-block">'+
+                            '<h3 class="card-title message-card-title">'+ data.username +'</h3>'+
+                            '<blockquote class="card-blockquote">'+
+                                data.message +
+                            '</blockquote>'+
+                        '</div>'+
+                    '</div>';
     $('div.messages').append(html);
-    var messages = document.getElementsByClassName('messages')[0];
-    messages.scrollTop = messages.scrollHeight;
-}
-
-function insertOnlineUser(person){
-    var html = `
-                <div class="card black" id="${person._id}">
-                <strong>Username: <span class="white-text">${person.username}</span></strong>
-    `;
-    var onlinediv = document.getElementById('online');
-    $('div.online').append(html);
-    onlinediv.scrollTop = onlinediv.scrollHeight;
-    Materialize.toast('User connected',2000);
-}
-
-socket.on('pubmsg', function (data) {
-    printMessage(data);
 });
 
-socket.on("disconnect", function (data) {
 
-});
 
-socket.on("connect", function () {
-    setTitle('connected | Chat');
-    socket.emit('getData',{
-        token: location.pathname.split('/')[2]
-    });
-});
 
-socket.on('printLastSession', function(result){
-    var messages = result.data;
-    var onlineUsers = result.users;
-    if(messages.length){
-        messages.forEach(function(message){
-            printMessage(message);
-        });
-    }
-    if(onlineUsers.length){
-        console.log(onlineUsers);
-        onlineUsers.forEach(function (user) {
-            insertOnlineUser(user);
-        });
-    }
-});
-
-socket.on('jwterror', function (data) {
-    Materialize.toast(data.message,3000);
-});
-
-socket.on('fatalerr', function (data) {
-    console.log(data);
-    Materialize.toast('Please login again',3000);
-});
-
-socket.on('user connected', function (data) {
-    insertOnlineUser(data.user);
-});
 
 
 

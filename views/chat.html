@@ -74,7 +74,8 @@
             <div class="row">
                 <div class="col-md-10 col-sm-10">
                     <div id="inputBox">
-                        <form>
+                        <form onsubmit="sendMessage(event);return false;">
+                            <input type="hidden" data-username="{{user.username}}" data-id="{{user._id}}">
                             <div class="form-group">
                                 <label for="message">Message:</label>
                                 <input type="text" class="form-control" id="message"

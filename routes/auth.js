@@ -25,21 +25,26 @@ function login(req, res) {
             u = xss(u);
             //all fine
             var users = db.get().collection('Users');
-            users.findOne({username: u}, function (err,person) {
-                assert.equal(err,null);
+            users.findOne({username: u}, function (err, person) {
+                assert.equal(err, null);
                 var token = jwt.sign({
                     person: person,
                     expiresIn: 300
-                },secret);
-                if(person){
+                }, secret);
+                if (person) {
                     console.log(person);
-                    res.redirect('/chat/'+token);
+                    res.redirect('/chat/' + token);
                 }
-                else{
+                else {
                     console.log('new user');
-                    users.insertOne({username: u}).then(function () {
+                    users.insertOne({username: u}).then(function (callbackData) {
+                        var person = callbackData.ops[0];
+                        var token = jwt.sign({
+                            person: person,
+                            expiresIn: 300
+                        }, secret);
                         console.log('the new user was inserted');
-                        res.redirect('/chat/'+token)
+                        res.redirect('/chat/' + token)
                     })
                         .catch(function (err) {
                             console.log('Error: on line 40 in auth.js');
@@ -55,7 +60,7 @@ function login(req, res) {
 
         }
     }
-    else{
+    else {
         res.render('error', {
             message: `No username provided. Try Again!`
         });
