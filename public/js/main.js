@@ -38,7 +38,10 @@ function sendMessage(e) {
 }
 
 socket.on('newMessage', function (data) {
-    var html = '<div class="card card-outline-success mb-3 text-justify message-card">'+
+    var colors = ['primary','success','danger','info','warning'];
+    var rand = Math.floor(Math.random() * 5);
+    var rcolorval = colors[rand];
+    var html = '<div class="card card-outline-'+ rcolorval +' mb-3 text-justify message-card">'+
                         '<div class="card-block">'+
                             '<h3 class="card-title message-card-title">'+ data.username +'</h3>'+
                             '<blockquote class="card-blockquote">'+

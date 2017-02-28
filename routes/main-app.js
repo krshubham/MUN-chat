@@ -26,7 +26,7 @@ exports = module.exports = function (io) {
             messages.insertOne({message: message}).then(function () {
                 console.log('data inserted');
             });
-            app.emit('newMessage',message);
+            app.emit('newMessage', message);
         });
 
 
