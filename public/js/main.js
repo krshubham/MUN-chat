@@ -47,6 +47,8 @@ socket.on('newMessage', function (data) {
                         '</div>'+
                     '</div>';
     $('div.messages').append(html);
+    var messages = document.getElementsByClassName('messages')[0];
+    messages.scrollTop = messages.scrollHeight;
 });
 
 

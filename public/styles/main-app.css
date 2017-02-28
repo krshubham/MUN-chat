@@ -31,3 +31,8 @@ div.online-users {
     overflow: scroll;
     height: 512px;
 }
+
+div.messages {
+    overflow-y: auto;
+    height: 400px;
+}
