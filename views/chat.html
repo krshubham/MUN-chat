@@ -5,32 +5,20 @@
     <title>Chat</title>
 </head>
 <body>
-<nav class="navbar navbar-toggleable-md navbar-light bg-faded">
-    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <a class="navbar-brand" href="#">VITC MUN</a>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            <li class="nav-item active">
-                <a class="nav-link" href="#">Public<span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">One to One</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Group</a>
-            </li>
+<nav>
+    <div class="nav-wrapper">
+        <a href="#" class="brand-logo">Logo</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="sass.html">Sass</a></li>
+            <li><a href="badges.html">Components</a></li>
+            <li><a href="collapsible.html">JavaScript</a></li>
         </ul>
     </div>
 </nav>
-<div class="jumbotron">
-    <h1>Welcome to MUN Chat</h1>
-</div>
-<div class="container-fluid">
+<h2>Welcome to MUN Chat</h2>
+<div class="no-container">
     <div class="row">
-        <div class="col-md-3">
+        <div class="col m3">
             <h3 id="online-user-heading">Online Users:</h3>
             <div class="online-users" style="overflow: scroll;height: 400px;">
                 <div class="list-group" r>
@@ -55,7 +43,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-9">
+        <div class="col m9">
             <h3>Public Terminal</h3>
             <div class="row">
                 <div class="messages">
@@ -72,12 +60,14 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-10 col-sm-10">
+                <div class="col m10 col s10">
                     <div id="inputBox">
                         <form onsubmit="sendMessage(event);return false;">
-                            <input type="hidden" id="user-details" data-username="{{user.username}}" data-id="{{user._id}}">
+                            <input type="hidden" id="user-details" data-username="{{user.username}}"
+                                   data-id="{{user._id}}">
                             <div class="form-group">
-                                <label for="message">Message:</label><small id="typing-status"></small>
+                                <label for="message">Message:</label>
+                                <small id="typing-status"></small>
                                 <input type="text" class="form-control" id="message"
                                        placeholder="Enter your message here" onkeyup="typingStatus(this)">
                             </div>
@@ -95,7 +85,7 @@
         el.style.height = window.innerHeight - el.offsetHeight + 'px';
     });
 </script>
-<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 <script src="/js/main.js"></script>
 <script src="/js/xss.min.js"></script>
 </html>
