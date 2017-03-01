@@ -29,6 +29,11 @@ exports = module.exports = function (io) {
             app.emit('newMessage', message);
         });
 
+        socket.on('typing',function (data) {
+            console.log(data);
+            socket.broadcast.emit('typing', data.user + ' is typing');
+        });
+
 
         socket.on('disconnect', function () {
             var address = socket.handshake.address;
