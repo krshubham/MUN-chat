@@ -7,7 +7,7 @@
 <body>
 <nav>
     <div class="nav-wrapper">
-        <a href="#" class="brand-logo">Logo</a>
+        <a href="#" class="brand-logo">VITC MUN</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li><a href="sass.html">Sass</a></li>
             <li><a href="badges.html">Components</a></li>
@@ -15,52 +15,48 @@
         </ul>
     </div>
 </nav>
-<h2>Welcome to MUN Chat</h2>
+<h2 style="text-align: center;">Welcome to MUN Chat</h2>
 <div class="no-container">
     <div class="row">
-        <div class="col m3">
-            <h3 id="online-user-heading">Online Users:</h3>
-            <div class="online-users" style="overflow: scroll;height: 400px;">
-                <div class="list-group" r>
-                    <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
-                    <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
-                    <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
-                    <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
-                    <a href="#" class="list-group-item list-group-item-action disabled">Vestibulum at eros</a>
-                    <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
-                    <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
-                    <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
-                    <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
-                    <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
-                    <a href="#" class="list-group-item list-group-item-action disabled">Vestibulum at eros</a>
-                    <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
-                    <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
-                    <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
-                    <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
-                    <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
-                    <a href="#" class="list-group-item list-group-item-action disabled">Vestibulum at eros</a>
-                    <a href="#" class="list-group-item list-group-item-action">Cras justo odio</a>
-                </div>
-            </div>
-        </div>
-        <div class="col m9">
+        <div class="col m12">
             <h3>Public Terminal</h3>
             <div class="row">
                 <div class="messages">
-                    <div class="card card-outline-success mb-3 text-justify message-card">
-                        <div class="card-block">
-                            <h3 class="card-title message-card-title">Kumar Shubham</h3>
-                            <blockquote class="card-blockquote">
-                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae dolorem est excepturi
-                                laborum natus, nostrum repellendus ut! Aliquid aut distinctio doloremque facere incidunt
-                                molestias necessitatibus, non nostrum perspiciatis quae totam!
-                            </blockquote>
+                    <div class="row">
+                        <div class="col s12 m9">
+                            <div class="card blue-grey darken-1 z-depth-2">
+                                <div class="card-content white-text">
+                                    <span class="card-title">Kumar Shubham</span>
+                                    <p>
+                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem exercitationem
+                                        quasi totam. Debitis distinctio harum mollitia provident veniam! Aliquam
+                                        assumenda doloribus eum exercitationem expedita impedit magnam pariatur suscipit
+                                        tempore voluptas!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col s12 m3">
+                            <div class="row">
+                                <div class="col s12">
+                                    <form action="#" onsubmit="addCountry(event);">
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <i class="material-icons prefix">textsms</i>
+                                                <input type="text" id="autocomplete-input"
+                                                       class="autocomplete country-val" autocomplete="off">
+                                                <label for="autocomplete-input">Add a receiving country</label>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col m10 col s10">
+                <div class="col m12 col s12">
                     <div id="inputBox">
                         <form onsubmit="sendMessage(event);return false;">
                             <input type="hidden" id="user-details" data-username="{{user.username}}"
@@ -70,6 +66,8 @@
                                 <small id="typing-status"></small>
                                 <input type="text" class="form-control" id="message"
                                        placeholder="Enter your message here" onkeyup="typingStatus(this)">
+                                <div id="sending-to">
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -79,12 +77,6 @@
     </div>
 </div>
 </body>
-<script>
-    $(document).ready(function () {
-        var el = document.querySelector('div.online-users');
-        el.style.height = window.innerHeight - el.offsetHeight + 'px';
-    });
-</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 <script src="/js/main.js"></script>
 <script src="/js/xss.min.js"></script>

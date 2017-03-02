@@ -9,6 +9,25 @@
  **************************************************************************************/
 
 var socket = io.connect('/app');
+var addedCountries = localStorage.getItem('addedCountries');
+if (addedCountries.length) {
+    var list = addedCountries.split(',');
+    list.forEach(function (country) {
+        var html = `
+        <div class="chip">
+            ${country}
+            <a href="#" data-value="${country}" onclick="removeCountry(this)">
+                <i class="close material-icons">close</i>
+            </a>
+        </div>
+    `;
+        $('div#sending-to').append(html);
+    });
+    addedCountries = addedCountries.split(',');
+}
+else {
+    addedCountries = [];
+}
 
 function setTitle(text) {
     var title = document.getElementsByTagName('title')[0];
@@ -47,26 +66,35 @@ function sendMessage(e) {
     message = filterXSS(message);
     $('input#message').val('');
     console.log(message);
+    console.log(addedCountries)
+    console.log(addedCountries);
     socket.emit('newMessage', {
         message: message,
         username: uname,
-        userId: uid
-        //TODO: add an array containing the client to whom message is to be sent
+        userId: uid,
+        sendTo: addedCountries
     });
 }
 
 socket.on('newMessage', function (data) {
+    console.log(data);
     var colors = ['primary', 'success', 'danger', 'info', 'warning'];
     var rand = Math.floor(Math.random() * 5);
     var rcolorval = colors[rand];
-    var html = '<div class="card card-outline-' + rcolorval + ' mb-3 text-justify message-card">' +
-        '<div class="card-block">' +
-        '<h3 class="card-title message-card-title">' + data.username + '</h3>' +
-        '<blockquote class="card-blockquote">' +
-        data.message +
-        '</blockquote>' +
-        '</div>' +
-        '</div>';
+    var html = `
+        <div class="row">
+                        <div class="col s12 m6 offset-m1 offset-s1">
+                            <div class="card blue-grey darken-1 z-depth-2">
+                                <div class="card-content white-text">
+                                    <span class="card-title">${data.username}</span>
+                                    <p>
+                                       ${data.message}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    `;
     $('div.messages').append(html);
     var messages = document.getElementsByClassName('messages')[0];
     messages.scrollTop = messages.scrollHeight;
@@ -107,11 +135,51 @@ socket.on('typing', function (data) {
     timeout = setTimeout(removeTyping, 500);
 });
 
+$(document).ready(function () {
+    $('input.autocomplete').autocomplete({
+        data: {
+            "Apple": null,
+            "India": null,
+            "Italy": null,
+            "Microsoft": null,
+            "Google": 'http://placehold.it/250x250'
+        },
+        limit: 5, // The max amount of results that can be shown at once. Default: Infinity.
+    });
+});
 
 
+function addCountry(e) {
+    e.preventDefault();
+    var form = e.target;
+    var input = form.querySelector('input.country-val');
+    var country = input.value;
+    if (input.value === '' || country.match(/^\s*$/g))
+        return false;
+    if (addedCountries.indexOf(country) !== -1) {
+        Materialize.toast('The Country is already added', 2000);
+        return false;
+    }
+    addedCountries.push(country);
+    localStorage.setItem('addedCountries', addedCountries);
+    var html = `
+        <div class="chip">
+            ${country}
+            <a href="#" data-value="${country}" onclick="removeCountry(this)">
+                <i class="close material-icons">close</i>
+            </a>
+        </div>
+    `;
+    $('input.country-val').val('');
+    $('div#sending-to').append(html);
+}
 
-
-
-
-
-
+function removeCountry(obj) {
+    var country = obj.getAttribute('data-value');
+    var index = addedCountries.indexOf(country);
+    if (index > -1) {
+        addedCountries.splice(index, 1);
+    }
+    addedCountries.splice(index, 1);
+    localStorage.setItem('addedCountries', addedCountries);
+}
