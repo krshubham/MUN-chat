@@ -31,32 +31,48 @@ exports = module.exports = function (io) {
         onlineClients.push(user);
         console.log(onlineClients);
 
+        /*Tell everyone that a person has joined*/
+
+            socket.broadcast.emit('connectedClient', {
+                data: onlineClients
+            });
+
         var messages = maindb.get().collection('messages');
         socket.on('newMessage', function (message) {
             var socketId = socket.conn.id;
             console.log(message);
-            message.username = user.username;
-            message.userId = user._id;
+            console.log(user);
+            // message.username = user.username;
+            // message.userId = user._id;
             var sendTo = message.sendTo;
-            console.log(sendTo);
             //Insert the message in the db;
             messages.insertOne({message: message}).then(function () {
                 console.log('data inserted');
             });
+            /*If nobody is specified, send message to everybody*/
+            if (sendTo.length === 0) {
+                app.emit('newMessage', message);
+            }
             for (var receiver in sendTo) {
                 for (var client in onlineClients) {
-                    console.log(sendTo[receiver]);
-                    console.log(onlineClients[client].username === sendTo[receiver]);
-                    if (onlineClients[client].username === sendTo[receiver]) {
+                    console.log(onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase());
+                    if (onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase()) {
                         socket.broadcast.to(onlineClients[client].socketId).emit('newMessage', message);
+                        socket.emit('newMessage', message);
                     }
                 }
             }
-            // app.emit('newMessage', message);
         });
 
         socket.on('typing', function (data) {
-            socket.broadcast.emit('typing', data.user + ' is typing');
+            var sendTo = data.sendTo;
+            for (var receiver in sendTo) {
+                for (var client in onlineClients) {
+                    if (onlineClients[client].username === sendTo[receiver]) {
+                        socket.broadcast.to(onlineClients[client].socketId).emit('typing', data.user + ' is typing');
+                    }
+                }
+            }
         });
 
 
@@ -64,6 +80,9 @@ exports = module.exports = function (io) {
             var index = onlineClients.indexOf(socket.id);
             onlineClients.splice(index, 1);
             console.log(onlineClients);
+            socket.broadcast.emit('disconnectedClient', {
+                data: onlineClients
+            });
         });
     });
 

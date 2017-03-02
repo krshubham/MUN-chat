@@ -21,60 +21,52 @@
         <div class="col m12">
             <h3>Public Terminal</h3>
             <div class="row">
-                <div class="messages">
+                <div class="col s12 m9">
+                    <div class="messages"></div>
+                </div>
+                <div class="col s12 m3">
                     <div class="row">
-                        <div class="col s12 m9">
-                            <div class="card blue-grey darken-1 z-depth-2">
-                                <div class="card-content white-text">
-                                    <span class="card-title">Kumar Shubham</span>
-                                    <p>
-                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem exercitationem
-                                        quasi totam. Debitis distinctio harum mollitia provident veniam! Aliquam
-                                        assumenda doloribus eum exercitationem expedita impedit magnam pariatur suscipit
-                                        tempore voluptas!
-                                    </p>
+                        <h4>Online Countries</h4>
+                        <ul class="collection" id="onlineClients">
+                            <li class="collection-item">Alvin</li>
+                        </ul>
+                    </div>
+                    <div class="row" style="position: fixed;width: 20%;">
+                        <div class="col s12" id="countryBox">
+                            <form action="#" onsubmit="addCountry(event);">
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <i class="material-icons prefix">textsms</i>
+                                        <input type="text" id="autocomplete-input"
+                                               class="autocomplete country-val" autocomplete="off">
+                                        <label for="autocomplete-input">Add a receiving country</label>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col s12 m3">
-                            <div class="row">
-                                <div class="col s12">
-                                    <form action="#" onsubmit="addCountry(event);">
-                                        <div class="row">
-                                            <div class="input-field col s12">
-                                                <i class="material-icons prefix">textsms</i>
-                                                <input type="text" id="autocomplete-input"
-                                                       class="autocomplete country-val" autocomplete="off">
-                                                <label for="autocomplete-input">Add a receiving country</label>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col m12 col s12">
-                    <div id="inputBox">
-                        <form onsubmit="sendMessage(event);return false;">
-                            <input type="hidden" id="user-details" data-username="{{user.username}}"
-                                   data-id="{{user._id}}">
-                            <div class="form-group">
-                                <label for="message">Message:</label>
-                                <small id="typing-status"></small>
-                                <input type="text" class="form-control" id="message"
-                                       placeholder="Enter your message here" onkeyup="typingStatus(this)">
-                                <div id="sending-to">
-                                </div>
+        </div>
+        <div class="row">
+            <div class="col m12 col s12">
+                <div id="inputBox">
+                    <form onsubmit="sendMessage(event);return false;">
+                        <input type="hidden" id="user-details" data-username="{{user.username}}"
+                               data-id="{{user._id}}">
+                        <div class="form-group">
+                            <label for="message">Message:</label>
+                            <small id="typing-status"></small>
+                            <input type="text" class="form-control" id="message"
+                                   placeholder="Enter your message here" onkeyup="typingStatus(this)">
+                            <div id="sending-to">
                             </div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+</div>
 </div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>

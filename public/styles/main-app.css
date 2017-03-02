@@ -2,7 +2,7 @@ div.jumbotron {
     text-align: center;
 }
 
-div#inputBox {
+div#inputBox, div#countryBox {
     position: fixed;
     width: 70% !important;
     overflow: hidden;
@@ -28,7 +28,7 @@ h3#online-user-heading {
 }
 
 div.online-users {
-    overflow: scroll;
+    overflow: hidden;
     height: 512px;
 }
 

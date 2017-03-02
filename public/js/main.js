@@ -9,7 +9,7 @@
  **************************************************************************************/
 
 var socket = io.connect('/app');
-var addedCountries = localStorage.getItem('addedCountries') || '';
+var addedCountries = [];
 if (addedCountries.length) {
     var list = addedCountries.split(',');
     list.forEach(function (country) {
@@ -62,6 +62,10 @@ function sendMessage(e) {
     var uname = hiddenel.getAttribute('data-username');
     var uid = hiddenel.getAttribute('data-id');
     var message = e.target.querySelector('input#message').value;
+    if (message.match(/^\s*$/g)) {
+        Materialize.toast('Blank messages are not allowed', 1500);
+        return false;
+    }
     //purify
     message = filterXSS(message);
     $('input#message').val('');
@@ -121,7 +125,8 @@ function typingStatus(obj) {
     console.log(userId);
     socket.emit('typing', {
         user: userName,
-        userId: userId
+        userId: userId,
+        sendTo: addedCountries
     });
 }
 
@@ -161,7 +166,6 @@ function addCountry(e) {
         return false;
     }
     addedCountries.push(country);
-    localStorage.setItem('addedCountries', addedCountries);
     var html = `
         <div class="chip">
             ${country}
@@ -180,6 +184,30 @@ function removeCountry(obj) {
     if (index > -1) {
         addedCountries.splice(index, 1);
     }
-    addedCountries.splice(index, 1);
-    localStorage.setItem('addedCountries', addedCountries);
 }
+
+socket.on('connectedClient', function (data) {
+    console.log(data);
+
+    data.data.forEach(function (client) {
+        var html = `
+         <li class="collection-item">${client.username}</li>
+        `;
+        Materialize.toast(client.username + ' is online now', 2000);
+        $('ul#onlineClients').append(html);
+    });
+});
+
+socket.on('disconnectedClient', function (data) {
+    console.log(data);
+    var html = '';
+    $('ul#onlineClients').html('');
+    data.data.forEach(function (client) {
+        var inhtml = `
+         <li class="collection-item">${client.username}</li>
+        `;
+        html += inhtml;
+        Materialize.toast(client.username + ' is offline now', 2000);
+        $('ul#onlineClients').append(html);
+    });
+});
