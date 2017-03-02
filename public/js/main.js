@@ -9,7 +9,7 @@
  **************************************************************************************/
 
 var socket = io.connect('/app');
-var addedCountries = localStorage.getItem('addedCountries');
+var addedCountries = localStorage.getItem('addedCountries') || '';
 if (addedCountries.length) {
     var list = addedCountries.split(',');
     list.forEach(function (country) {
