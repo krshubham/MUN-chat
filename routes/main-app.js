@@ -9,18 +9,88 @@ const secret = 'R3Dcherrylovesg@@k';
 const assert = require('assert');
 var xss = require('xss');
 
-exports = module.exports = function (io) {
-    var user;
-    var app = io.of('/app');
-
-    var onlineClients = [];
-    app.on('connection', function (socket) {
+var onlineClients = [];
+var pressId;
+function showAllChats(socket, app) {
+    socket.on('newMessage', function (message) {
+        console.log(message);
         var socketId = socket.id;
-        var token = socket.handshake.headers.referer.split('/')[4];
+        var user;
+        var token = socket.handshake.headers.referer.split('/')[5];
         try {
             var decoded = jwt.decode(token, secret);
             user = decoded.person;
             user.socketId = socketId;
+        }
+        catch (err) {
+            console.log(err);
+            socket.emit('error', 'Something went wrong');
+        }
+        message.username = user.username;
+        console.log(message);
+        var sendTo = message.sendTo;
+        /*If nobody is specified, send message to everybody*/
+        if (sendTo.length === 0) {
+            app.emit('newMessage', message);
+        }
+        for (var receiver in sendTo) {
+            for (var client in onlineClients) {
+                console.log(onlineClients[client].username.toLowerCase() + ' : ' + sendTo[receiver].toLowerCase());
+                console.log(onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase());
+                if (onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase()) {
+                    socket.broadcast.to(onlineClients[client].socketId).emit('newMessage', message);
+                    socket.emit('newMessage', message);
+                }
+            }
+        }
+    });
+}
+
+
+function handlePress(socket, app) {
+    var socketId = socket.id;
+    var token = socket.handshake.headers.referer.split('/')[5];
+    try {
+        var decoded = jwt.decode(token, secret);
+        user = decoded.person;
+        user.socketId = socketId;
+        console.log('user in IB');
+        if (user.username === 'international press') {
+            showAllChats(socket, app);
+        }
+        else {
+            socket.emit('error', {
+                message: 'You are not allowed to view this page'
+            });
+        }
+    }
+    catch (err) {
+        console.log(err);
+        socket.emit('error', 'Something went wrong');
+    }
+}
+
+exports = module.exports = function (io) {
+    var user;
+    var app = io.of('/app');
+
+    app.on('connection', function (socket) {
+        var socketId = socket.id;
+        var token = socket.handshake.headers.referer.split('/')[4];
+        if (token === 'press') {
+            pressId = socketId;
+            handlePress(socket, app);
+            return;
+        }
+        else {
+            console.log('normal user');
+        }
+        try {
+            var decoded = jwt.decode(token, secret);
+            user = decoded.person;
+            user.socketId = socketId;
+            console.log('user is');
+            console.log(user);
         }
         catch (err) {
             console.log(err);
@@ -38,20 +108,32 @@ exports = module.exports = function (io) {
 
         var messages = maindb.get().collection('messages');
         socket.on('newMessage', function (message) {
-            var socketId = socket.conn.id;
             console.log(message);
-            console.log(user);
-            // message.username = user.username;
-            // message.userId = user._id;
+            var socketId = socket.id;
+            var user;
+            var token = socket.handshake.headers.referer.split('/')[4];
+            try {
+                var decoded = jwt.decode(token, secret);
+                user = decoded.person;
+                user.socketId = socketId;
+            }
+            catch (err) {
+                console.log(err);
+                socket.emit('error', 'Something went wrong');
+            }
+            message.username = user.username;
+            console.log(message);
             var sendTo = message.sendTo;
             //Insert the message in the db;
-            messages.insertOne({message: message}).then(function () {
-                console.log('data inserted');
+            messages.insertOne({message: message}).then(function (callback) {
+                console.log(`The data was inserted into the db`);
+                console.log(callback.ops[0]);
             });
             /*If nobody is specified, send message to everybody*/
             if (sendTo.length === 0) {
                 app.emit('newMessage', message);
             }
+            var flag = false;
             for (var receiver in sendTo) {
                 for (var client in onlineClients) {
                     console.log(onlineClients[client].username.toLowerCase() + ' : ' + sendTo[receiver].toLowerCase());
@@ -59,6 +141,11 @@ exports = module.exports = function (io) {
                     if (onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase()) {
                         socket.broadcast.to(onlineClients[client].socketId).emit('newMessage', message);
                         socket.emit('newMessage', message);
+                    }
+                    else if(onlineClients[client].socketId === pressId && flag){
+                        /*Send to the international press*/
+                        socket.broadcast.to(pressId).emit('newMessage', message);
+                        flag = false;
                     }
                 }
             }

@@ -11,39 +11,42 @@ var morgan = require('morgan');
 var db = require('./db');
 var chat = require('./routes/chat');
 var mainApp = require('./routes/main-app');
+var press = require('./routes/press');
 var Agenda = require('agenda');
 var connString = 'mongodb://localhost:27017/agenda';
 
 var agenda = new Agenda({db: {address: connString}});
 
 //Cron job to delete chats every day
-agenda.define('delete old messages', function(job, done){
+agenda.define('delete old messages', function (job, done) {
     var messages = db.get().collection('messages');
-    messages.remove({}).then(function(){
+    messages.remove({}).then(function () {
         done();
     })
-    .catch(function(err){
-        console.log(err);
-    });
+        .catch(function (err) {
+            console.log(err);
+        });
 });
 
-agenda.on('ready', function(){
+agenda.on('ready', function () {
     agenda.every('24 hours', 'delete old messages');
     agenda.start();
 });
 app.use(morgan('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'public')));
 app.engine('html', mustacheExpress());
 app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
+app.use('/press', press);
+
 
 mainApp(io);
 //db connection
 const url = 'mongodb://localhost:27017/fun';
 db.connect(url, function (err) {
-    if(err){
+    if (err) {
         console.log(err);
     }
 });
@@ -54,6 +57,8 @@ app.get('/', function (req, res) {
     });
 });
 
-app.post('/auth/login',auth.login);
+app.post('/auth/login', auth.login);
+app.post('/auth/press', auth.pressLogin);
 app.get('/chat/:token', chat.init);
+app.get('/chat/press/:token',chat.press);
 server.listen(9876);

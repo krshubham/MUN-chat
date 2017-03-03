@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--jQuery CDN link-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+
+    <!--materialize css loaded before custom css for changes-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+    <link rel="stylesheet" href="/styles/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>International Press Login</title>
+</head>
+<body style="background-color: #fff;color: #000;">
+<div class="jumbotron">
+    <h1 class="center" style="color: #0f0f0f;">Only for international press!</h1>
+</div>
+<br>
+<br>
+<div class="container">
+    <div class="col m12" style="margin-left: 10%;">
+        <form class="col s12" method="POST" action="/auth/press">
+            <div class="row">
+                <div class="input-field col s12">
+                    <label>Username</label>
+                    <input type="text" name="username" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <label>Password</label>
+                    <input type="password" name="password" />
+                </div>
+            </div>
+            <div align="center">
+                <button class="waves-effect waves-light btn">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

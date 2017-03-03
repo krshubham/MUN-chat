@@ -8,22 +8,22 @@ var app = require('../app');
 var server = app.server;
 var io = require('socket.io')(server);
 
-function init(req,res) {
+function init(req, res) {
     var token = req.params.token;
-    try{
+    try {
         assert.notEqual(token, undefined);
         var decoded = jwt.verify(token, secret);
         console.log(decoded);
         //TODO: the chat connection using sockets
-        res.render('chat',{
+        res.render('chat', {
             token: token,
             user: decoded.person
         });
 
     }
-    catch(err){
+    catch (err) {
         console.log(err);
-        return res.render('error',{
+        return res.render('error', {
             message: `${err}`
         });
     }
@@ -31,6 +31,32 @@ function init(req,res) {
 
 }
 
+function press(req,res) {
+    var token = req.params.token;
+    try {
+        assert.notEqual(token, undefined);
+        var decoded = jwt.verify(token, secret);
+        console.log(decoded);
+        if (!(decoded.person.username === 'international press')) {
+            return res.json({
+                status: 403,
+                message: 'Unauthorised login attempt'
+            });
+        }
+        res.render('press_chat', {
+            token: token,
+            user: decoded.person
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return res.render('error', {
+            message: `${err}`
+        });
+    }
+}
+
 module.exports = {
-    init: init
+    init: init,
+    press: press
 };
