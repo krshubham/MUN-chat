@@ -47,22 +47,22 @@ function setTitle(text) {
     title.innerHTML = text;
 }
 
-function notifyMe(data) {
-    if (Notification.permission !== "granted")
-        Notification.requestPermission();
-    else {
-        var notification = new Notification('MUN Chat', {
-            icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
-            body: data
-        });
-
-        notification.onclick = function () {
-            window.focus();
-        };
-
-    }
-
-}
+// function notifyMe(data) {
+//     if (Notification.permission !== "granted")
+//         Notification.requestPermission();
+//     else {
+//         var notification = new Notification('MUN Chat', {
+//             icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
+//             body: data
+//         });
+//
+//         notification.onclick = function () {
+//             window.focus();
+//         };
+//
+//     }
+//
+// }
 
 socket.on('connect', function () {
     console.log('connected');
@@ -95,9 +95,9 @@ function sendMessage(e) {
 
 socket.on('newMessage', function (data) {
     console.log(data);
-    if (!windowFocused) {
+   /* if (!windowFocused) {
         notifyMe(data.message);
-    }
+    }*/
     var colors = ['primary', 'success', 'danger', 'info', 'warning'];
     var rand = Math.floor(Math.random() * 5);
     var rcolorval = colors[rand];

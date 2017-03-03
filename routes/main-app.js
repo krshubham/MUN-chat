@@ -97,8 +97,8 @@ exports = module.exports = function (io) {
             socket.emit('error', 'Something went wrong');
         }
 
-        var connectedClients = app.server.engine.clients;
         onlineClients.push(user);
+        console.log('list of online clients');
         console.log(onlineClients);
 
         /*Tell everyone that a person has joined*/
@@ -133,19 +133,18 @@ exports = module.exports = function (io) {
             if (sendTo.length === 0) {
                 app.emit('newMessage', message);
             }
-            var flag = false;
+            if ((sendTo.length > 0) && (sendTo.indexOf('international press') < 0)) {
+                console.log('IP not present');
+                socket.broadcast.to(pressId).emit('newMessage', message);
+            }
+            // console.log(onlineClients);
             for (var receiver in sendTo) {
                 for (var client in onlineClients) {
-                    console.log(onlineClients[client].username.toLowerCase() + ' : ' + sendTo[receiver].toLowerCase());
-                    console.log(onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase());
+                    // console.log(onlineClients[client].username.toLowerCase() + ' : ' + sendTo[receiver].toLowerCase());
+                    // console.log(onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase());
                     if (onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase()) {
                         socket.broadcast.to(onlineClients[client].socketId).emit('newMessage', message);
                         socket.emit('newMessage', message);
-                    }
-                    else if(onlineClients[client].socketId === pressId && flag){
-                        /*Send to the international press*/
-                        socket.broadcast.to(pressId).emit('newMessage', message);
-                        flag = false;
                     }
                 }
             }

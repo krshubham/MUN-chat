@@ -47,7 +47,7 @@ function setTitle(text) {
     title.innerHTML = text;
 }
 
-function notifyMe(data) {
+/*function notifyMe(data) {
     if (Notification.permission !== "granted")
         Notification.requestPermission();
     else {
@@ -62,7 +62,7 @@ function notifyMe(data) {
 
     }
 
-}
+}*/
 
 socket.on('connect', function () {
     console.log('connected');
@@ -95,9 +95,9 @@ function sendMessage(e) {
 
 socket.on('newMessage', function (data) {
     console.log(data);
-    if (!windowFocused) {
+    /*if (!windowFocused) {
         notifyMe(data.message);
-    }
+    }*/
     var colors = ['primary', 'success', 'danger', 'info', 'warning'];
     var rand = Math.floor(Math.random() * 5);
     var rcolorval = colors[rand];
