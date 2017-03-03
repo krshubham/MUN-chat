@@ -28,7 +28,6 @@
                     <div class="row">
                         <h4>Online Countries</h4>
                         <ul class="collection" id="onlineClients">
-                            <li class="collection-item">Alvin</li>
                         </ul>
                     </div>
                     <div class="row" style="position: fixed;width: 20%;">
@@ -46,27 +45,27 @@
                         </div>
                     </div>
                 </div>
-        </div>
-        <div class="row">
-            <div class="col m12 col s12">
-                <div id="inputBox">
-                    <form onsubmit="sendMessage(event);return false;">
-                        <input type="hidden" id="user-details" data-username="{{user.username}}"
-                               data-id="{{user._id}}">
-                        <div class="form-group">
-                            <label for="message">Message:</label>
-                            <small id="typing-status"></small>
-                            <input type="text" class="form-control" id="message"
-                                   placeholder="Enter your message here" onkeyup="typingStatus(this)">
-                            <div id="sending-to">
+            </div>
+            <div class="row">
+                <div class="col m12 col s12">
+                    <div id="inputBox">
+                        <form onsubmit="sendMessage(event);return false;">
+                            <input type="hidden" id="user-details" data-username="{{user.username}}"
+                                   data-id="{{user._id}}">
+                            <div class="form-group">
+                                <label for="message">Message:</label>
+                                <small id="typing-status"></small>
+                                <input type="text" class="form-control" id="message"
+                                       placeholder="Enter your message here" onkeyup="typingStatus(this)">
+                                <div id="sending-to">
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>

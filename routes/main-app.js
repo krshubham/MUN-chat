@@ -32,10 +32,9 @@ exports = module.exports = function (io) {
         console.log(onlineClients);
 
         /*Tell everyone that a person has joined*/
-
-            socket.broadcast.emit('connectedClient', {
-                data: onlineClients
-            });
+        app.emit('connectedClient', {
+            data: onlineClients
+        });
 
         var messages = maindb.get().collection('messages');
         socket.on('newMessage', function (message) {
@@ -55,6 +54,7 @@ exports = module.exports = function (io) {
             }
             for (var receiver in sendTo) {
                 for (var client in onlineClients) {
+                    console.log(onlineClients[client].username.toLowerCase() + ' : ' + sendTo[receiver].toLowerCase());
                     console.log(onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase());
                     if (onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase()) {
                         socket.broadcast.to(onlineClients[client].socketId).emit('newMessage', message);
@@ -77,8 +77,15 @@ exports = module.exports = function (io) {
 
 
         socket.on('disconnect', function () {
-            var index = onlineClients.indexOf(socket.id);
-            onlineClients.splice(index, 1);
+            console.log(socket.id);
+            for (var i = 0; i < onlineClients.length; i++) {
+                if (onlineClients[i].socketId === socket.id) {
+                    socket.broadcast.emit('disconnClientName', {
+                        name: onlineClients[i].username
+                    });
+                    onlineClients.splice(i, 1);
+                }
+            }
             console.log(onlineClients);
             socket.broadcast.emit('disconnectedClient', {
                 data: onlineClients

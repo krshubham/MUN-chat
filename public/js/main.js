@@ -8,8 +8,21 @@
  * This one keeps changing if you change your network or reconnect some other time   *
  **************************************************************************************/
 
+var windowFocused = true;
+/*Window blur and focus events*/
+window.onblur = function () {
+    windowFocused = false;
+};
+
+window.onfocus = function () {
+    windowFocused = true;
+};
+
+
 var socket = io.connect('/app');
 var addedCountries = [];
+
+
 if (addedCountries.length) {
     var list = addedCountries.split(',');
     list.forEach(function (country) {
@@ -70,7 +83,7 @@ function sendMessage(e) {
     message = filterXSS(message);
     $('input#message').val('');
     console.log(message);
-    console.log(addedCountries)
+    console.log(addedCountries);
     console.log(addedCountries);
     socket.emit('newMessage', {
         message: message,
@@ -82,6 +95,9 @@ function sendMessage(e) {
 
 socket.on('newMessage', function (data) {
     console.log(data);
+    if (!windowFocused) {
+        notifyMe(data.message);
+    }
     var colors = ['primary', 'success', 'danger', 'info', 'warning'];
     var rand = Math.floor(Math.random() * 5);
     var rcolorval = colors[rand];
@@ -102,18 +118,7 @@ socket.on('newMessage', function (data) {
     $('div.messages').append(html);
     var messages = document.getElementsByClassName('messages')[0];
     messages.scrollTop = messages.scrollHeight;
-    // Notification support
-    document.addEventListener('DOMContentLoaded', function () {
-        if (!Notification) {
-            alert('Desktop notifications not available in your browser. Try Chromium.');
-            return;
-        }
-
-        if (Notification.permission !== "granted") Notification.requestPermission();
-        if (!window.hasFocus()) {
-            notifyMe(data.message);
-        }
-    });
+    data = null;
 });
 
 var timeout;
@@ -188,12 +193,14 @@ function removeCountry(obj) {
 
 socket.on('connectedClient', function (data) {
     console.log(data);
-
+    var html = '';
     data.data.forEach(function (client) {
-        var html = `
+        var inhtml = `
          <li class="collection-item">${client.username}</li>
         `;
+        html += inhtml;
         Materialize.toast(client.username + ' is online now', 2000);
+        $('ul#onlineClients').html('');
         $('ul#onlineClients').append(html);
     });
 });
@@ -201,13 +208,16 @@ socket.on('connectedClient', function (data) {
 socket.on('disconnectedClient', function (data) {
     console.log(data);
     var html = '';
-    $('ul#onlineClients').html('');
     data.data.forEach(function (client) {
         var inhtml = `
          <li class="collection-item">${client.username}</li>
         `;
         html += inhtml;
-        Materialize.toast(client.username + ' is offline now', 2000);
+        $('ul#onlineClients').html('');
         $('ul#onlineClients').append(html);
     });
+});
+
+socket.on('disconnClientName', function (data) {
+    Materialize.toast(data.name + ' is offline now', 1500);
 });
