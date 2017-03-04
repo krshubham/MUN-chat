@@ -18,7 +18,6 @@ window.onfocus = function () {
     windowFocused = true;
 };
 
-
 var socket = io.connect('/app');
 var addedCountries = [];
 
@@ -106,8 +105,9 @@ socket.on('newMessage', function (data) {
      notifyMe(data.message);
      }*/
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
+    var fhtml = ``;
     if (data.username === userDetails) {
-        var inhtml = `<br>`;
+        fhtml = `<div class="bubble-speech bubble-right" style="margin: auto; margin-top: 1em;margin-right: 3em !important;">`;
         data.sendTo.forEach(function (client) {
             console.log(client);
             inhtml += ` <div class="chip">
@@ -118,22 +118,17 @@ socket.on('newMessage', function (data) {
     }
     else {
         inhtml = '';
+        fhtml = `<div class="bubble-speech bubble-left">`;
     }
-    var html = `
-        <div class="row">
-                        <div class="col s12 m6 offset-m1 offset-s1">
-                            <div class="card blue-grey darken-1 z-depth-2">
-                                <div class="card-content white-text">
-                                    <span class="card-title">${data.username}</span>
-                                    <p>
-                                       ${data.message}
-                                    </p>`
+
+    var html = fhtml + `<h6 class="author">
+                        ${data.username}
+                    </h6>
+                    <div class="message">
+                        ${data.message}
+                   </div>`
         + inhtml +
-        `</div>
-                            </div>
-                        </div>
-                    </div>
-    `;
+        `</div>`;
     $('div.messages').append(html);
     var messages = document.getElementsByClassName('messages')[0];
     messages.scrollTop = messages.scrollHeight;
@@ -181,8 +176,10 @@ $(document).ready(function () {
 function addCountry(e) {
     e.preventDefault();
     var country = e.target.innerHTML;
-    if (country.value === '' || country.match(/^\s*$/g))
-        return false;
+    if (country === 'Everyone(online)') {
+        country = country.toLowerCase();
+        country = country.split('(')[0];
+    }
     if (addedCountries.indexOf(country) !== -1) {
         Materialize.toast('The Country is already added', 2000);
         return false;
@@ -215,13 +212,21 @@ function removeCountry(obj) {
 socket.on('connectedClient', function (data) {
     console.log(data);
     var html = '';
+    var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.data.forEach(function (client) {
-        var inhtml = `
-         <li class="collection-item" onclick="addCountry(event)">${client.username}</li>
+        if (client.username === userDetails) {
+            //do nothing
+        } else {
+            var inhtml = `
+         <li class="collection-item" onclick="addCountry(event)"><i class="material-icons"  style="color: #61d700;margin-right: 5px;">album</i> 
+            <span>${client.username}</span>
+         </li>
         `;
-        html += inhtml;
-        $('ul#onlineClients').html('');
-        $('ul#onlineClients').append(html);
+            html += inhtml;
+            $('ul#onlineClients').html('');
+            $('ul#onlineClients').html('<li class="collection-item" onclick="addCountry(event)">Everyone(online)</li>');
+            $('ul#onlineClients').append(html);
+        }
     });
 
 });
@@ -254,10 +259,12 @@ socket.on('getSession', function (data) {
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.forEach(function (message) {
         var inhtml = `<br>`;
+        var fhtml = ``;
         if (message.username === userDetails) {
+            fhtml = `<div class="bubble-speech bubble-right" style="margin: auto; margin-top: 1em;margin-right: 3em !important;">`;
             message.sendTo.forEach(function (client) {
                 console.log(client);
-                inhtml += ` <div class="chip">
+                inhtml += ` <div class="chip" style="font-size: 0.8em;">
             ${client}
             </div>`;
             });
@@ -266,23 +273,17 @@ socket.on('getSession', function (data) {
         }
         else {
             inhtml = ``;
+            fhtml = `<div class="bubble-speech bubble-left">`;
         }
 
-        var html = `
-        <div class="row">
-                        <div class="col s12 m6 offset-m1 offset-s1">
-                            <div class="card blue-grey darken-1 z-depth-2">
-                                <div class="card-content white-text">
-                                    <span class="card-title">${message.username}</span>
-                                    <p>
-                                       ${message.message}
-                                    </p>`
-            + inhtml +
-            `</div>
-                            </div>
-                        </div>
-                    </div>
-    `;
+        var html = fhtml + `<h6 class="author">
+                                ${message.username}
+                            </h6>
+                            <div class="message">
+                                ${message.message}
+                            </div>` +
+            inhtml + `
+                        </div>`
         $('div.messages').append(html);
     });
 });

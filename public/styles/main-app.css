@@ -34,5 +34,9 @@ div.online-users {
 
 div.messages {
     overflow-y: auto;
-    height: 400px;
+    height: 500px;
+}
+
+nav{
+    background-color: #34495e;
 }

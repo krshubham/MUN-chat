@@ -13,14 +13,6 @@ function login(req, res) {
         var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         try {
             assert.notEqual(u, '');
-
-            if (u.length > 10) {
-                console.log('username length more than 10 chars');
-                return res.render('error', {
-                    message: 'The username exceeded the length of 10 characters. Try Again!'
-                });
-            }
-
             //now the username is okay
             //let's remove some malicious things
 
@@ -79,7 +71,7 @@ function pressLogin(req, res) {
         }, secret);
         res.redirect('/chat/press/' + token);
     }
-    else{
+    else {
         res.json({
             status: 403,
             message: 'Unauthorised attempt!. Forbidden'

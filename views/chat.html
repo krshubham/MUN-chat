@@ -4,49 +4,119 @@
     {{> includes/head-chat}}
     <title>Chat</title>
 </head>
-<body>
+<style>
+    .bubble-speech {
+        position: relative;
+        font-family: 'Source Sans Pro', sans-serif;
+        /*margin: auto;*/
+        margin: 20px 20px;
+        line-height: 22px;
+        letter-spacing: 1px;
+        margin-top: 16px;
+        margin-bottom: 48px;
+        width: 300px;
+        background-color: #efefef;
+        padding: 16px;
+    }
+
+    .bubble-speech.bubble-left:after {
+        z-index: 9002;
+        display: block;
+        content: "";
+        position: absolute;
+        bottom: -11px;
+        left: 0;
+        border-top: 0 #efefef solid;
+        border-bottom: 12px transparent solid;
+        border-left: 20px #efefef solid;
+    }
+
+    .bubble-square {
+        width: 33px;
+        height: 25px;
+        text-align: center;
+    }
+
+    .bubble-speech.bubble-center:after {
+        z-index: 9002;
+        display: block;
+        content: "";
+        position: absolute;
+        bottom: -11px;
+        left: 50%;
+        margin-left: -18px;
+        border-right: 20px transparent solid;
+        border-top: 12px #efefef solid;
+        border-left: 20px transparent solid;
+    }
+
+    .bubble-speech.bubble-right:after {
+        z-index: 9002;
+        display: block;
+        content: "";
+        position: absolute;
+        bottom: -11px;
+        right: 0;
+        border-top: 0 #efefef solid;
+        border-bottom: 12px transparent solid;
+        border-right: 20px #efefef solid;
+    }
+
+    .bubble-speech .author {
+        max-width: 200px;
+        font-weight: bold;
+        margin: 0;
+        padding: 0 12px 2px 0;
+    }
+    div.form-group{
+        background-color: #f9f9f9;
+        padding-left: 10px;
+        border-radius: 1em;
+    }
+
+</style>
+<body style="overflow-y: hidden;">
 <nav>
     <div class="nav-wrapper">
-        <a href="#" class="brand-logo">VITC MUN</a>
-        <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="#" onclick="location.href = '/';">Logout</a></li>
-            <li><a href="badges.html">Components</a></li>
-            <li><a href="collapsible.html">JavaScript</a></li>
+        <a class="brand-logo hide-on-med-and-down" href="#" style="margin-left: 10px;font-size: 1em;"> VITCMUN 2017</a>
+        <a href="#" class="brand-logo center"><i class="material-icons"
+                                                 style="color: #61d700;margin-right: 5px;">album</i>{{user.country}}</a>
+        <ul id="nav-mobile" class="right">
+            <li><a href="#" onclick="location.href = '/';"><i class="material-icons">power_settings_new</i> Logout</a>
+            </li>
         </ul>
     </div>
 </nav>
-<h2 style="text-align: center;">Welcome to MUN Chat, {{user.country}}</h2>
 <div class="no-container">
     <div class="row">
-        <div class="col m12">
-            <h3>Public Terminal</h3>
+        <div class="col s12 m3" id="online-countries">
             <div class="row">
-                <div class="col s12 m9">
-                    <div class="messages"></div>
-                </div>
-                <div class="col s12 m3">
-                    <div class="row">
-                        <h4>Online Countries</h4>
-                        <ul class="collection" id="onlineClients">
-                        </ul>
-                    </div>
-                </div>
+                <h4>Online Countries</h4>
+                <ul class="collection" id="onlineClients">
+                </ul>
             </div>
+        </div>
+        <div class="col m9 s12">
             <div class="row">
-                <div class="col m12 col s12">
-                    <div id="inputBox">
-                        <form onsubmit="sendMessage(event);return false;">
-                            <input type="hidden" id="user-details" data-username="{{user.country}}"
-                                   data-id="{{user._id}}">
-                            <div class="form-group">
-                                <label for="message">Message:</label>
-                                <small id="typing-status"></small>
-                                <input type="text" class="form-control" id="message"
-                                       placeholder="Enter your message here" onkeyup="typingStatus(this)">
-                                <div id="sending-to">
+                <div id="sending-to">
+                </div>
+                <hr>
+                <div class="col s12 m12">
+                    <div class="messages" style="overflow-x: hidden;">
+                    </div>
+                    <div class="col m12 s12">
+                        <div id="inputBox">
+                            <form onsubmit="sendMessage(event);return false;">
+                                <input type="hidden" id="user-details" data-username="{{user.country}}"
+                                       data-id="{{user._id}}">
+                                <div class="form-group">
+                                    <label for="message">Message:</label>
+                                    <small id="typing-status"></small>
+                                    <input type="text" class="form-control" id="message"
+                                           placeholder="Enter your message here" onkeyup="typingStatus(this)">
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -54,6 +124,10 @@
     </div>
 </div>
 </body>
+<script>
+    $('div#online-countries').css('height',window.innerHeight);
+    $('div.messages').css('height', (window.innerHeight - 250)+'px');
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 <script src="/js/main.js"></script>
 <script src="/js/xss.min.js"></script>
