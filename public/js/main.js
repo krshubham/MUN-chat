@@ -180,10 +180,8 @@ $(document).ready(function () {
 
 function addCountry(e) {
     e.preventDefault();
-    var form = e.target;
-    var input = form.querySelector('input.country-val');
-    var country = input.value;
-    if (input.value === '' || country.match(/^\s*$/g))
+    var country = e.target.innerHTML;
+    if (country.value === '' || country.match(/^\s*$/g))
         return false;
     if (addedCountries.indexOf(country) !== -1) {
         Materialize.toast('The Country is already added', 2000);
@@ -219,7 +217,7 @@ socket.on('connectedClient', function (data) {
     var html = '';
     data.data.forEach(function (client) {
         var inhtml = `
-         <li class="collection-item">${client.username}</li>
+         <li class="collection-item" onclick="addCountry(event)">${client.username}</li>
         `;
         html += inhtml;
         $('ul#onlineClients').html('');

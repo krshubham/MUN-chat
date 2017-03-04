@@ -9,6 +9,7 @@ var app
 function login(req, res) {
     if (req && req.body) {
         var u = req.body.username;
+        var p = req.body.password
         var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         try {
             assert.notEqual(u, '');
@@ -22,10 +23,17 @@ function login(req, res) {
 
             //now the username is okay
             //let's remove some malicious things
+
             u = xss(u);
-            //all fine
-            var users = db.get().collection('Users');
-            users.findOne({username: u}, function (err, person) {
+
+            var unsc = db.get().collection('unsc');
+            // var disec = db.get().collection('disec');
+            // var unhrc = db.get().collection('unhrc');
+            // var tll = db.get().collection('tll');
+            // var osce = db.get().collection('osce');
+            // var iaea = db.get().collection('iaea');
+
+            unsc.findOne({country: u}, function (err, person) {
                 assert.equal(err, null);
                 var token = jwt.sign({
                     person: person,
@@ -36,20 +44,10 @@ function login(req, res) {
                     res.redirect('/chat/' + token);
                 }
                 else {
-                    console.log('new user');
-                    users.insertOne({username: u}).then(function (callbackData) {
-                        var person = callbackData.ops[0];
-                        var token = jwt.sign({
-                            person: person,
-                            expiresIn: 300
-                        }, secret);
-                        console.log('the new user was inserted');
-                        res.redirect('/chat/' + token)
-                    })
-                        .catch(function (err) {
-                            console.log('Error: on line 40 in auth.js');
-                            console.log(err);
-                        });
+                    res.json({
+                        message: "Wrong details provided, Please Try again",
+                        status: 403
+                    });
                 }
             });
         }

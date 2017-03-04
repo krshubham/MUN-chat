@@ -9,13 +9,13 @@
     <div class="nav-wrapper">
         <a href="#" class="brand-logo">VITC MUN</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="sass.html">Sass</a></li>
+            <li><a href="#" onclick="location.href = '/';">Logout</a></li>
             <li><a href="badges.html">Components</a></li>
             <li><a href="collapsible.html">JavaScript</a></li>
         </ul>
     </div>
 </nav>
-<h2 style="text-align: center;">Welcome to MUN Chat, {{user.username}}</h2>
+<h2 style="text-align: center;">Welcome to MUN Chat, {{user.country}}</h2>
 <div class="no-container">
     <div class="row">
         <div class="col m12">
@@ -30,27 +30,13 @@
                         <ul class="collection" id="onlineClients">
                         </ul>
                     </div>
-                    <div class="row" style="position: fixed;width: 20%;">
-                        <div class="col s12" id="countryBox">
-                            <form action="#" onsubmit="addCountry(event);">
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <i class="material-icons prefix">textsms</i>
-                                        <input type="text" id="autocomplete-input"
-                                               class="autocomplete country-val" autocomplete="off">
-                                        <label for="autocomplete-input">Add a receiving country</label>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col m12 col s12">
                     <div id="inputBox">
                         <form onsubmit="sendMessage(event);return false;">
-                            <input type="hidden" id="user-details" data-username="{{user.username}}"
+                            <input type="hidden" id="user-details" data-username="{{user.country}}"
                                    data-id="{{user._id}}">
                             <div class="form-group">
                                 <label for="message">Message:</label>
