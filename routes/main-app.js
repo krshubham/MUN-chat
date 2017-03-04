@@ -12,37 +12,9 @@ var xss = require('xss');
 var onlineClients = [];
 var pressId;
 function showAllChats(socket, app) {
-    socket.on('newMessage', function (message) {
-        console.log(message);
-        var socketId = socket.id;
-        var user;
-        var token = socket.handshake.headers.referer.split('/')[5];
-        try {
-            var decoded = jwt.decode(token, secret);
-            user = decoded.person;
-            user.socketId = socketId;
-        }
-        catch (err) {
-            console.log(err);
-            socket.emit('error', 'Something went wrong');
-        }
-        message.username = user.username;
-        console.log(message);
-        var sendTo = message.sendTo;
-        /*If nobody is specified, send message to everybody*/
-        if (sendTo.length === 0) {
-            app.emit('newMessage', message);
-        }
-        for (var receiver in sendTo) {
-            for (var client in onlineClients) {
-                console.log(onlineClients[client].username.toLowerCase() + ' : ' + sendTo[receiver].toLowerCase());
-                console.log(onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase());
-                if (onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase()) {
-                    socket.broadcast.to(onlineClients[client].socketId).emit('newMessage', message);
-                    socket.emit('newMessage', message);
-                }
-            }
-        }
+    var database = maindb.get().collection('messages');
+    database.find({}).toArray(function (err,docs) {
+        socket.emit('getSession',docs);
     });
 }
 
@@ -128,6 +100,10 @@ exports = module.exports = function (io) {
 
         /*The collection which stores all the messages, suitable for the international press*/
         var messages = maindb.get().collection('messages');
+
+        /*The new message event
+        * @event responsible for delegating all the events after a new message is genarated
+        * */
         socket.on('newMessage', function (message) {
             var socketId = socket.id;
             var user;
