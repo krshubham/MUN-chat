@@ -68,19 +68,35 @@
         margin: 0;
         padding: 0 12px 2px 0;
     }
-    div.form-group{
+
+    div.form-group {
         background-color: #f9f9f9;
         padding-left: 10px;
         border-radius: 1em;
     }
 
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: #ebebeb;
+        -webkit-border-radius: 10px;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        -webkit-border-radius: 10px;
+        border-radius: 10px;
+        background: #6d6d6d;
+    }
 </style>
 <body style="overflow-y: hidden;">
 <nav>
     <div class="nav-wrapper">
         <a class="brand-logo hide-on-med-and-down" href="#" style="margin-left: 10px;font-size: 1em;"> VITCMUN 2017</a>
-        <a href="#" class="brand-logo center"><i class="material-icons"
-                                                 style="color: #61d700;margin-right: 5px;">album</i>{{user.country}}</a>
+        <a href="#" class="brand-logo center">{{user.country}}</a>
         <ul id="nav-mobile" class="right">
             <li><a href="#" onclick="location.href = '/';"><i class="material-icons">power_settings_new</i> Logout</a>
             </li>
@@ -123,10 +139,14 @@
         </div>
     </div>
 </div>
+<audio id="myAudio">
+    <source src="/media/tone.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio>
 </body>
 <script>
-    $('div#online-countries').css('height',window.innerHeight);
-    $('div.messages').css('height', (window.innerHeight - 250)+'px');
+    $('div#online-countries').css('height', window.innerHeight);
+    $('div.messages').css('height', (window.innerHeight - 250) + 'px');
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 <script src="/js/main.js"></script>

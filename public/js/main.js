@@ -134,6 +134,7 @@ socket.on('newMessage', function (data) {
     var messages = document.getElementsByClassName('messages')[0];
     messages.scrollTop = messages.scrollHeight;
     if (windowFocused !== true) {
+        playAudio();
         var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
         if (!(data.username === userDetails)) {
             notifyMe(data.message);
@@ -228,11 +229,11 @@ socket.on('connectedClient', function (data) {
             //do nothing
         } else {
             var inhtml = `
-         <li class="collection-item" onclick="addCountry(event)">${client.username}</li>
+         <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
         `;
             html += inhtml;
             $('ul#onlineClients').html('');
-            $('ul#onlineClients').html('<li class="collection-item" onclick="addCountry(event)">Everyone(online)</li>');
+            $('ul#onlineClients').html('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
             $('ul#onlineClients').append(html);
         }
     });
@@ -293,5 +294,17 @@ socket.on('getSession', function (data) {
             inhtml + `
                         </div>`
         $('div.messages').append(html);
+        var messages = document.getElementsByClassName('messages')[0];
+        messages.scrollTop = messages.scrollHeight;
     });
 });
+
+var x = document.getElementById("myAudio");
+
+function playAudio() {
+    x.play();
+}
+
+function pauseAudio() {
+    x.pause();
+}
