@@ -48,25 +48,26 @@ function setTitle(text) {
 }
 
 /*function notifyMe(data) {
-    if (Notification.permission !== "granted")
-        Notification.requestPermission();
-    else {
-        var notification = new Notification('MUN Chat', {
-            icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
-            body: data
-        });
+ if (Notification.permission !== "granted")
+ Notification.requestPermission();
+ else {
+ var notification = new Notification('MUN Chat', {
+ icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
+ body: data
+ });
 
-        notification.onclick = function () {
-            window.focus();
-        };
+ notification.onclick = function () {
+ window.focus();
+ };
 
-    }
+ }
 
-}*/
+ }*/
 
 socket.on('connect', function () {
     console.log('connected');
-    setTitle('connected | MUN')
+    setTitle('connected | MUN');
+    socket.emit('getSession');
 });
 
 function sendMessage(e) {
@@ -81,10 +82,16 @@ function sendMessage(e) {
     }
     //purify
     message = filterXSS(message);
-    $('input#message').val('');
     console.log(message);
-    console.log(addedCountries);
-    console.log(addedCountries);
+    if (!addedCountries.length) {
+        Materialize.toast('No countries to send :( Try everyone for sending this message to everybody', 4000);
+        return false;
+    }
+    if (addedCountries.indexOf('everyone') !== -1 && addedCountries.length > 1) {
+        Materialize.toast('You have added everyone already. Remove others!', 2000);
+        return false;
+    }
+    $('input#message').val('');
     socket.emit('newMessage', {
         message: message,
         username: uname,
@@ -96,11 +103,22 @@ function sendMessage(e) {
 socket.on('newMessage', function (data) {
     console.log(data);
     /*if (!windowFocused) {
-        notifyMe(data.message);
-    }*/
-    var colors = ['primary', 'success', 'danger', 'info', 'warning'];
-    var rand = Math.floor(Math.random() * 5);
-    var rcolorval = colors[rand];
+     notifyMe(data.message);
+     }*/
+    var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
+    if (data.username === userDetails) {
+        var inhtml = `<br>`;
+        data.sendTo.forEach(function (client) {
+            console.log(client);
+            inhtml += ` <div class="chip">
+            ${client}
+            </div>`;
+        });
+        console.log(inhtml);
+    }
+    else {
+        inhtml = '';
+    }
     var html = `
         <div class="row">
                         <div class="col s12 m6 offset-m1 offset-s1">
@@ -109,8 +127,9 @@ socket.on('newMessage', function (data) {
                                     <span class="card-title">${data.username}</span>
                                     <p>
                                        ${data.message}
-                                    </p>
-                                </div>
+                                    </p>`
+        + inhtml +
+        `</div>
                             </div>
                         </div>
                     </div>
@@ -170,6 +189,10 @@ function addCountry(e) {
         Materialize.toast('The Country is already added', 2000);
         return false;
     }
+    if (addedCountries.indexOf('everyone') !== -1 && addedCountries.length > 0) {
+        Materialize.toast('You have added everyone already. Remove others!', 2000);
+        return false;
+    }
     addedCountries.push(country);
     var html = `
         <div class="chip">
@@ -199,11 +222,17 @@ socket.on('connectedClient', function (data) {
          <li class="collection-item">${client.username}</li>
         `;
         html += inhtml;
-        Materialize.toast(client.username + ' is online now', 2000);
         $('ul#onlineClients').html('');
         $('ul#onlineClients').append(html);
     });
+
 });
+
+socket.on('connClientName', function (data) {
+    console.log(data);
+    Materialize.toast(data.data.username + ' is online now!', 1500);
+});
+
 
 socket.on('disconnectedClient', function (data) {
     console.log(data);
@@ -220,4 +249,42 @@ socket.on('disconnectedClient', function (data) {
 
 socket.on('disconnClientName', function (data) {
     Materialize.toast(data.name + ' is offline now', 1500);
+});
+
+socket.on('getSession', function (data) {
+    console.log(data);
+    var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
+    data.forEach(function (message) {
+        var inhtml = `<br>`;
+        if (message.username === userDetails) {
+            message.sendTo.forEach(function (client) {
+                console.log(client);
+                inhtml += ` <div class="chip">
+            ${client}
+            </div>`;
+            });
+            console.log(inhtml);
+
+        }
+        else {
+            inhtml = ``;
+        }
+
+        var html = `
+        <div class="row">
+                        <div class="col s12 m6 offset-m1 offset-s1">
+                            <div class="card blue-grey darken-1 z-depth-2">
+                                <div class="card-content white-text">
+                                    <span class="card-title">${message.username}</span>
+                                    <p>
+                                       ${message.message}
+                                    </p>`
+            + inhtml +
+            `</div>
+                            </div>
+                        </div>
+                    </div>
+    `;
+        $('div.messages').append(html);
+    });
 });

@@ -75,28 +75,36 @@ exports = module.exports = function (io) {
     var app = io.of('/app');
 
     app.on('connection', function (socket) {
+        /*get the socket id of the user*/
         var socketId = socket.id;
+        /*get the token. Now this returns the token if a user is not the international press
+         *The token will be === 'press' which will be further taken care by other methods
+         *  */
         var token = socket.handshake.headers.referer.split('/')[4];
+
+        /*If 4th index is press then it is international press trying to login. let the do this*/
         if (token === 'press') {
             pressId = socketId;
+            /*Let this method handle all the events for the international press*/
             handlePress(socket, app);
             return;
         }
         else {
             console.log('normal user');
         }
+        /*Check if the token is valid or not*/
         try {
             var decoded = jwt.decode(token, secret);
             user = decoded.person;
+            /*set the socketId property to the current user*/
             user.socketId = socketId;
-            console.log('user is');
             console.log(user);
         }
         catch (err) {
             console.log(err);
             socket.emit('error', 'Something went wrong');
         }
-
+        /*push all the connected clients in this array for holding all the online clients*/
         onlineClients.push(user);
         console.log('list of online clients');
         console.log(onlineClients);
@@ -105,10 +113,22 @@ exports = module.exports = function (io) {
         app.emit('connectedClient', {
             data: onlineClients
         });
+        /*Send the name of the connected client to everyonew*/
+        socket.broadcast.emit('connClientName', {
+            data: user
+        });
 
+        /*Get the messages of the currently connected user*/
+        var userDatabase = maindb.get().collection(String(user.username).toLowerCase());
+        userDatabase.find({}).toArray(function (err, docs) {
+            console.log('db docs for ' + user.username + ' are:');
+            console.log(docs);
+            socket.emit('getSession', docs);
+        });
+
+        /*The collection which stores all the messages, suitable for the international press*/
         var messages = maindb.get().collection('messages');
         socket.on('newMessage', function (message) {
-            console.log(message);
             var socketId = socket.id;
             var user;
             var token = socket.handshake.headers.referer.split('/')[4];
@@ -122,22 +142,45 @@ exports = module.exports = function (io) {
                 socket.emit('error', 'Something went wrong');
             }
             message.username = user.username;
-            console.log(message);
+
             var sendTo = message.sendTo;
-            //Insert the message in the db;
-            messages.insertOne({message: message}).then(function (callback) {
-                console.log(`The data was inserted into the db`);
-                console.log(callback.ops[0]);
-            });
-            /*If nobody is specified, send message to everybody*/
-            if (sendTo.length === 0) {
+
+            if (sendTo.length === 1 && sendTo.indexOf('everyone') >= 0) {
                 app.emit('newMessage', message);
+                /*If its for everyone, insert into the db for all*/
+                /*
+                 * @param client
+                 * {
+                 *   username: 'username',
+                 *   _id: 'some mongo uuid',
+                 *   socketId: 'socketio provided id'
+                 *  }
+                 */
+                onlineClients.forEach(function (client) {
+                    //noinspection JSAnnotator
+                    if (client.username === user.username) {
+                        //do nothing
+                    }
+                    else {
+                        console.log('we have ' + onlineClients.length + ' clients');
+                        var database = maindb.get().collection(String(client.username).toLowerCase());
+                        database.insertOne(message).then(function (cb) {
+                            console.log(cb.ops[0]);
+                        })
+                            .catch(function (err) {
+                                console.log(err);
+                            });
+                    }
+                });
             }
+            /*If nobody is specified, send message to everybody*/
             if ((sendTo.length > 0) && (sendTo.indexOf('international press') < 0)) {
                 console.log('IP not present');
                 socket.broadcast.to(pressId).emit('newMessage', message);
             }
-            // console.log(onlineClients);
+            if ((sendTo.length > 0) && (sendTo.indexOf('international press') >= 0)) {
+                socket.broadcast.to(pressId).emit('newMessage', message);
+            }
             for (var receiver in sendTo) {
                 for (var client in onlineClients) {
                     // console.log(onlineClients[client].username.toLowerCase() + ' : ' + sendTo[receiver].toLowerCase());
@@ -147,6 +190,29 @@ exports = module.exports = function (io) {
                         socket.emit('newMessage', message);
                     }
                 }
+            }
+            /*Insert into the messages db for the ip*/
+            messages.insertOne(message).then(function (callback) {
+                console.log(callback.ops[0]);
+            })
+                .catch(function (err) {
+                    console.log(err);
+                });
+            /*Insert in the db of the sender*/
+            var database = maindb.get().collection(String(message.username).toLowerCase());
+            database.insertOne(message).then(function (cb) {
+                console.log(cb.ops[0]);
+            });
+
+            /*insert into the db of all the recipients*/
+            for (var i = 0; i < sendTo.length; i++) {
+                var database = maindb.get().collection(String(sendTo[i]).toLowerCase());
+                database.insertOne(message).then(function (cb) {
+                    console.log(cb.ops[0]);
+                })
+                    .catch(function (err) {
+                        console.log(err);
+                    });
             }
         });
 
@@ -177,6 +243,7 @@ exports = module.exports = function (io) {
                 data: onlineClients
             });
         });
+
     });
 
 };
