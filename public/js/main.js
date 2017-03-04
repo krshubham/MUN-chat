@@ -8,13 +8,15 @@
  * This one keeps changing if you change your network or reconnect some other time   *
  **************************************************************************************/
 
-var windowFocused = true;
+var windowFocused;
 /*Window blur and focus events*/
 window.onblur = function () {
+    console.log('window blurred');
     windowFocused = false;
 };
 
 window.onfocus = function () {
+    console.log('window focused');
     windowFocused = true;
 };
 
@@ -46,22 +48,23 @@ function setTitle(text) {
     title.innerHTML = text;
 }
 
-/*function notifyMe(data) {
- if (Notification.permission !== "granted")
- Notification.requestPermission();
- else {
- var notification = new Notification('MUN Chat', {
- icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
- body: data
- });
+function notifyMe(data) {
 
- notification.onclick = function () {
- window.focus();
- };
+    if (Notification.permission !== "granted")
+        Notification.requestPermission();
+    else {
+        var notification = new Notification('MUN Chat', {
+            icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
+            body: data
+        });
 
- }
+        notification.onclick = function () {
+            window.focus();
+        };
 
- }*/
+    }
+
+}
 
 socket.on('connect', function () {
     console.log('connected');
@@ -101,9 +104,7 @@ function sendMessage(e) {
 
 socket.on('newMessage', function (data) {
     console.log(data);
-    /*if (!windowFocused) {
-     notifyMe(data.message);
-     }*/
+    var inhtml = ``;
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     var fhtml = ``;
     if (data.username === userDetails) {
@@ -132,6 +133,15 @@ socket.on('newMessage', function (data) {
     $('div.messages').append(html);
     var messages = document.getElementsByClassName('messages')[0];
     messages.scrollTop = messages.scrollHeight;
+    if (windowFocused !== true) {
+        var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
+        if (!(data.username === userDetails)) {
+            notifyMe(data.message);
+        }
+    }
+    else {
+        //do nothing
+    }
     data = null;
 });
 
@@ -218,9 +228,7 @@ socket.on('connectedClient', function (data) {
             //do nothing
         } else {
             var inhtml = `
-         <li class="collection-item" onclick="addCountry(event)"><i class="material-icons"  style="color: #61d700;margin-right: 5px;">album</i> 
-            <span>${client.username}</span>
-         </li>
+         <li class="collection-item" onclick="addCountry(event)">${client.username}</li>
         `;
             html += inhtml;
             $('ul#onlineClients').html('');
