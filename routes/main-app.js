@@ -16,8 +16,8 @@ function showAllChats(socket, app) {
         data: onlineClients
     });
     var database = maindb.get().collection('messages');
-    database.find({}).toArray(function (err,docs) {
-        socket.emit('getSession',docs);
+    database.find({}).toArray(function (err, docs) {
+        socket.emit('getSession', docs);
     });
 }
 
@@ -110,8 +110,8 @@ exports = module.exports = function (io) {
         var messages = maindb.get().collection('messages');
 
         /*The new message event
-        * @event responsible for delegating all the events after a new message is genarated
-        * */
+         * @event responsible for delegating all the events after a new message is genarated
+         * */
         socket.on('newMessage', function (message) {
             console.log('The new message is: ');
             console.log(message);
@@ -174,10 +174,10 @@ exports = module.exports = function (io) {
                     // console.log(onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase());
                     if (onlineClients[client].username === sendTo[receiver]) {
                         socket.broadcast.to(onlineClients[client].socketId).emit('newMessage', message);
-                        socket.emit('newMessage', message);
                     }
                 }
             }
+            socket.emit('newMessage', message);
             /*Insert into the messages db for the ip*/
             messages.insertOne(message).then(function (callback) {
                 // console.log(callback.ops[0]);

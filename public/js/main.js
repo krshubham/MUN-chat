@@ -264,6 +264,7 @@ socket.on('disconnClientName', function (data) {
 });
 
 socket.on('getSession', function (data) {
+    var htmlArray = [];
     console.log(data);
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.forEach(function (message) {
@@ -292,12 +293,18 @@ socket.on('getSession', function (data) {
                                 ${message.message}
                             </div>` +
             inhtml + `
-                        </div>`
-        $(`div.messages`).html('');
-        $('div.messages').append(html);
-        var messages = document.getElementsByClassName('messages')[0];
-        messages.scrollTop = messages.scrollHeight;
+                        </div>`;
+        console.log(html);
+        // $('div.messages').append(html);
+        htmlArray.push(html);
     });
+    console.log(htmlArray);
+    htmlArray.forEach(function (html) {
+        $('div.messages').append(html);
+    });
+    var messages = document.getElementsByClassName('messages')[0];
+    messages.scrollTop = messages.scrollHeight;
+    htmlArray = [];
 });
 
 var x = document.getElementById("myAudio");
