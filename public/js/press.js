@@ -8,16 +8,17 @@
  * This one keeps changing if you change your network or reconnect some other time   *
  **************************************************************************************/
 
-var windowFocused = true;
+var windowFocused;
 /*Window blur and focus events*/
 window.onblur = function () {
+    console.log('window blurred');
     windowFocused = false;
 };
 
 window.onfocus = function () {
+    console.log('window focused');
     windowFocused = true;
 };
-
 
 var socket = io.connect('/app');
 var addedCountries = [];
@@ -47,22 +48,23 @@ function setTitle(text) {
     title.innerHTML = text;
 }
 
-/*function notifyMe(data) {
- if (Notification.permission !== "granted")
- Notification.requestPermission();
- else {
- var notification = new Notification('MUN Chat', {
- icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
- body: data
- });
+function notifyMe(data) {
 
- notification.onclick = function () {
- window.focus();
- };
+    if (Notification.permission !== "granted")
+        Notification.requestPermission();
+    else {
+        var notification = new Notification('MUN Chat', {
+            icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
+            body: data
+        });
 
- }
+        notification.onclick = function () {
+            window.focus();
+        };
 
- }*/
+    }
+
+}
 
 socket.on('connect', function () {
     console.log('connected');
@@ -102,35 +104,45 @@ function sendMessage(e) {
 
 socket.on('newMessage', function (data) {
     console.log(data);
-    /*if (!windowFocused) {
-     notifyMe(data.message);
-     }*/
-    var inhtml = `<br>`;
-    data.sendTo.forEach(function (client) {
-        console.log(client);
-        inhtml += ` <div class="chip">
+    var inhtml = ``;
+    var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
+    var fhtml = ``;
+    if (data.username === userDetails) {
+        fhtml = `<div class="bubble-speech bubble-right" style="margin: auto; margin-top: 1em;margin-right: 3em !important;">`;
+        data.sendTo.forEach(function (client) {
+            console.log(client);
+            inhtml += ` <div class="chip">
             ${client}
             </div>`;
-    });
-    console.log(inhtml);
-    var html = `
-        <div class="row">
-                        <div class="col s12 m6 offset-m1 offset-s1">
-                            <div class="card blue-grey darken-1 z-depth-2">
-                                <div class="card-content white-text">
-                                    <span class="card-title">${data.username}</span>
-                                    <p>
-                                       ${data.message}
-                                    </p>`
+        });
+        console.log(inhtml);
+    }
+    else {
+        inhtml = '';
+        fhtml = `<div class="bubble-speech bubble-left">`;
+    }
+
+    var html = fhtml + `<h6 class="author">
+                        ${data.username}
+                    </h6>
+                    <div class="message">
+                        ${data.message}
+                   </div>`
         + inhtml +
-        `</div>
-                            </div>
-                        </div>
-                    </div>
-    `;
+        `</div>`;
     $('div.messages').append(html);
     var messages = document.getElementsByClassName('messages')[0];
     messages.scrollTop = messages.scrollHeight;
+    if (windowFocused !== true) {
+        var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
+        if (!(data.username === userDetails)) {
+            playAudio();
+            notifyMe(data.message);
+        }
+    }
+    else {
+        //do nothing
+    }
     data = null;
 });
 
@@ -158,27 +170,13 @@ socket.on('typing', function (data) {
     timeout = setTimeout(removeTyping, 500);
 });
 
-$(document).ready(function () {
-    $('input.autocomplete').autocomplete({
-        data: {
-            "Apple": null,
-            "India": null,
-            "Italy": null,
-            "Microsoft": null,
-            "Google": 'http://placehold.it/250x250'
-        },
-        limit: 5, // The max amount of results that can be shown at once. Default: Infinity.
-    });
-});
-
-
 function addCountry(e) {
     e.preventDefault();
-    var form = e.target;
-    var input = form.querySelector('input.country-val');
-    var country = input.value;
-    if (input.value === '' || country.match(/^\s*$/g))
-        return false;
+    var country = e.target.innerHTML;
+    if (country === 'Everyone(online)') {
+        country = country.toLowerCase();
+        country = country.split('(')[0];
+    }
     if (addedCountries.indexOf(country) !== -1) {
         Materialize.toast('The Country is already added', 2000);
         return false;
@@ -211,12 +209,14 @@ function removeCountry(obj) {
 socket.on('connectedClient', function (data) {
     console.log(data);
     var html = '';
+    var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.data.forEach(function (client) {
         var inhtml = `
-         <li class="collection-item">${client.username}</li>
+         <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
         `;
         html += inhtml;
         $('ul#onlineClients').html('');
+        $('ul#onlineClients').html('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
         $('ul#onlineClients').append(html);
     });
 
@@ -247,31 +247,40 @@ socket.on('disconnClientName', function (data) {
 
 socket.on('getSession', function (data) {
     console.log(data);
+    var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.forEach(function (message) {
         var inhtml = `<br>`;
+        var fhtml = ``;
         message.sendTo.forEach(function (client) {
             console.log(client);
-            inhtml += ` <div class="chip">
+            inhtml += ` <div class="chip" style="font-size: 0.8em;">
             ${client}
             </div>`;
         });
         console.log(inhtml);
 
-        var html = `
-        <div class="row">
-                        <div class="col s12 m6 offset-m1 offset-s1">
-                            <div class="card blue-grey darken-1 z-depth-2">
-                                <div class="card-content white-text">
-                                    <span class="card-title">${message.username}</span>
-                                    <p>
-                                       ${message.message}
-                                    </p>`
-            + inhtml +
-            `</div>
-                            </div>
-                        </div>
-                    </div>
-    `;
+        fhtml = `<div class="bubble-speech bubble-left">`;
+        var html = fhtml + `<h6 class="author">
+                                ${message.username}
+                            </h6>
+                            <div class="message">
+                                ${message.message}
+                            </div>` +
+            inhtml + `
+                        </div>`
+        $(`div.messages`).html('');
         $('div.messages').append(html);
+        var messages = document.getElementsByClassName('messages')[0];
+        messages.scrollTop = messages.scrollHeight;
     });
 });
+
+var x = document.getElementById("myAudio");
+
+function playAudio() {
+    x.play();
+}
+
+function pauseAudio() {
+    x.pause();
+}

@@ -12,6 +12,9 @@ var xss = require('xss');
 var onlineClients = [];
 var pressId;
 function showAllChats(socket, app) {
+    socket.emit('connectedClient', {
+        data: onlineClients
+    });
     var database = maindb.get().collection('messages');
     database.find({}).toArray(function (err,docs) {
         socket.emit('getSession',docs);
@@ -21,14 +24,16 @@ function showAllChats(socket, app) {
 
 function handlePress(socket, app) {
     var socketId = socket.id;
+    var user;
     var token = socket.handshake.headers.referer.split('/')[5];
     try {
         var decoded = jwt.decode(token, secret);
+        console.log(decoded);
+        decoded.person.username = decoded.person.country;
         user = decoded.person;
-        user.username = user.country;
-        delete user.country;
         user.socketId = socketId;
         console.log('user in IB');
+        console.log(user);
         if (user.username === 'international press') {
             showAllChats(socket, app);
         }

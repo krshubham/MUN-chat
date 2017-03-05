@@ -25,7 +25,7 @@ function login(req, res) {
             // var osce = db.get().collection('osce');
             // var iaea = db.get().collection('iaea');
 
-            unsc.findOne({country: u}, function (err, person) {
+            unsc.findOne({country: u, id:p}, function (err, person) {
                 assert.equal(err, null);
                 var token = jwt.sign({
                     person: person,
@@ -63,7 +63,8 @@ function pressLogin(req, res) {
         password = req.body.password;
     if (username === 'international press' && password === 'shubham') {
         var person = {
-            username: 'international press'
+            username: 'international press',
+            country: 'international press'
         };
         var token = jwt.sign({
             person: person,

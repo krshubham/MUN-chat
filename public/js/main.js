@@ -134,9 +134,9 @@ socket.on('newMessage', function (data) {
     var messages = document.getElementsByClassName('messages')[0];
     messages.scrollTop = messages.scrollHeight;
     if (windowFocused !== true) {
-        playAudio();
         var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
         if (!(data.username === userDetails)) {
+            playAudio();
             notifyMe(data.message);
         }
     }
@@ -293,6 +293,7 @@ socket.on('getSession', function (data) {
                             </div>` +
             inhtml + `
                         </div>`
+        $(`div.messages`).html('');
         $('div.messages').append(html);
         var messages = document.getElementsByClassName('messages')[0];
         messages.scrollTop = messages.scrollHeight;
