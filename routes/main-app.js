@@ -11,7 +11,7 @@ var xss = require('xss');
 
 var onlineClients = [];
 var pressId;
-function showAllChats(socket, app) {
+function showAllChats(socket, app,token) {
     socket.emit('connectedClient', {
         data: onlineClients
     });
@@ -19,6 +19,102 @@ function showAllChats(socket, app) {
     database.find({}).toArray(function (err, docs) {
         socket.emit('getSession', docs);
     });
+
+    /*The new message event
+     * @event responsible for delegating all the events after a new message is genarated
+     * */
+    socket.on('newMessage', function (message) {
+        var messages = maindb.get().collection('messages');
+        console.log('The new message is: ');
+        console.log(message);
+        var socketId = socket.id;
+        var user;
+        var token = socket.handshake.headers.referer.split('/')[5];
+        try {
+            var decoded = jwt.decode(token, secret);
+            decoded.person.username = decoded.person.country;
+            user = decoded.person;
+            user.socketId = socketId;
+        }
+        catch (err) {
+            console.log(err);
+            socket.emit('error', 'Something went wrong');
+        }
+        message.username = user.username;
+
+        var sendTo = message.sendTo;
+
+        if (sendTo.length === 1 && sendTo.indexOf('everyone') >= 0) {
+            app.emit('newMessage', message);
+            /*If its for everyone, insert into the db for all*/
+            /*
+             * @param client
+             * {
+             *   username: 'username',
+             *   _id: 'some mongo uuid',
+             *   socketId: 'socketio provided id'
+             *  }
+             */
+            onlineClients.forEach(function (client) {
+                //noinspection JSAnnotator
+                if (client.username === user.username) {
+                    //do nothing
+                }
+                else {
+                    // console.log('we have ' + onlineClients.length + ' clients');
+                    var database = maindb.get().collection(String(client.username));
+                    database.insertOne(message).then(function (cb) {
+                        // console.log(cb.ops[0]);
+                    })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+                }
+            });
+        }
+        /*If nobody is specified, send message to everybody*/
+        if ((sendTo.length > 0) && (sendTo.indexOf('international press') < 0)) {
+            console.log('IP not present');
+            socket.broadcast.to(pressId).emit('newMessage', message);
+        }
+        if ((sendTo.length > 0) && (sendTo.indexOf('international press') >= 0)) {
+            socket.broadcast.to(pressId).emit('newMessage', message);
+        }
+        for (var receiver in sendTo) {
+            for (var client in onlineClients) {
+                // console.log(onlineClients[client].username.toLowerCase() + ' : ' + sendTo[receiver].toLowerCase());
+                // console.log(onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase());
+                if (onlineClients[client].username === sendTo[receiver]) {
+                    socket.broadcast.to(onlineClients[client].socketId).emit('newMessage', message);
+                }
+            }
+        }
+        socket.emit('newMessage', message);
+        /*Insert into the messages db for the ip*/
+        messages.insertOne(message).then(function (callback) {
+            // console.log(callback.ops[0]);
+        })
+            .catch(function (err) {
+                console.log(err);
+            });
+        /*Insert in the db of the sender*/
+        var database = maindb.get().collection(String(message.username));
+        database.insertOne(message).then(function (cb) {
+            // console.log(cb.ops[0]);
+        });
+
+        /*insert into the db of all the recipients*/
+        for (var i = 0; i < sendTo.length; i++) {
+            var database = maindb.get().collection(String(sendTo[i]));
+            database.insertOne(message).then(function (cb) {
+                // console.log(cb.ops[0]);
+            })
+                .catch(function (err) {
+                    console.log(err);
+                });
+        }
+    });
+
 }
 
 
@@ -65,7 +161,7 @@ exports = module.exports = function (io) {
         if (token === 'press') {
             pressId = socketId;
             /*Let this method handle all the events for the international press*/
-            handlePress(socket, app);
+            handlePress(socket, app,token);
             return;
         }
         else {

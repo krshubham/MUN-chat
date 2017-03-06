@@ -53,8 +53,8 @@ function notifyMe(data) {
     if (Notification.permission !== "granted")
         Notification.requestPermission();
     else {
-        var notification = new Notification('MUN Chat', {
-            icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
+        var notification = new Notification('VITCMUN 2017', {
+            icon: '/images/small_logo.png',
             body: data
         });
 
@@ -118,7 +118,12 @@ socket.on('newMessage', function (data) {
         console.log(inhtml);
     }
     else {
-        inhtml = '';
+        data.sendTo.forEach(function (client) {
+            console.log(client);
+            inhtml += ` <div class="chip">
+            ${client}
+            </div>`;
+        });
         fhtml = `<div class="bubble-speech bubble-left">`;
     }
 
@@ -282,7 +287,12 @@ socket.on('getSession', function (data) {
 
         }
         else {
-            inhtml = ``;
+            message.sendTo.forEach(function (client) {
+                console.log(client);
+                inhtml += ` <div class="chip" style="font-size: 0.8em;">
+            ${client}
+            </div>`;
+            });
             fhtml = `<div class="bubble-speech bubble-left">`;
         }
 
@@ -299,6 +309,7 @@ socket.on('getSession', function (data) {
         htmlArray.push(html);
     });
     console.log(htmlArray);
+    $('div.messages').html('');
     htmlArray.forEach(function (html) {
         $('div.messages').append(html);
     });

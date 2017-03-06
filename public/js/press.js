@@ -53,8 +53,8 @@ function notifyMe(data) {
     if (Notification.permission !== "granted")
         Notification.requestPermission();
     else {
-        var notification = new Notification('MUN Chat', {
-            icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
+        var notification = new Notification('VITCMUN 2017', {
+            icon: '/images/small_logo.png',
             body: data
         });
 
@@ -246,20 +246,33 @@ socket.on('disconnClientName', function (data) {
 });
 
 socket.on('getSession', function (data) {
+    var htmlArray = [];
     console.log(data);
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.forEach(function (message) {
         var inhtml = `<br>`;
         var fhtml = ``;
-        message.sendTo.forEach(function (client) {
-            console.log(client);
-            inhtml += ` <div class="chip" style="font-size: 0.8em;">
+        if (message.username === userDetails) {
+            fhtml = `<div class="bubble-speech bubble-right" style="margin: auto; margin-top: 1em;margin-right: 3em !important;">`;
+            message.sendTo.forEach(function (client) {
+                console.log(client);
+                inhtml += ` <div class="chip" style="font-size: 0.8em;">
             ${client}
             </div>`;
-        });
-        console.log(inhtml);
+            });
+            console.log(inhtml);
 
-        fhtml = `<div class="bubble-speech bubble-left">`;
+        }
+        else {
+            message.sendTo.forEach(function (client) {
+                console.log(client);
+                inhtml += ` <div class="chip" style="font-size: 0.8em;">
+            ${client}
+            </div>`;
+            });
+            fhtml = `<div class="bubble-speech bubble-left">`;
+        }
+
         var html = fhtml + `<h6 class="author">
                                 ${message.username}
                             </h6>
@@ -267,13 +280,21 @@ socket.on('getSession', function (data) {
                                 ${message.message}
                             </div>` +
             inhtml + `
-                        </div>`
-        $(`div.messages`).html('');
-        $('div.messages').append(html);
-        var messages = document.getElementsByClassName('messages')[0];
-        messages.scrollTop = messages.scrollHeight;
+                        </div>`;
+        console.log(html);
+        // $('div.messages').append(html);
+        htmlArray.push(html);
     });
+    console.log(htmlArray);
+    $('div.messages').html('');
+    htmlArray.forEach(function (html) {
+        $('div.messages').append(html);
+    });
+    var messages = document.getElementsByClassName('messages')[0];
+    messages.scrollTop = messages.scrollHeight;
+    htmlArray = [];
 });
+
 
 var x = document.getElementById("myAudio");
 
