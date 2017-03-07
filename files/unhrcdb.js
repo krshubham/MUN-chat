@@ -30,4 +30,4 @@ db.connect(url, function (err) {
             });
         }
     });
-
+});
