@@ -107,18 +107,16 @@ socket.on('newMessage', function (data) {
     var inhtml = ``;
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     var fhtml = ``;
-    if (data.username === userDetails) {
-        fhtml = `<div class="bubble-speech bubble-right" style="margin: auto; margin-top: 1em;margin-right: 3em !important;">`;
-        data.sendTo.forEach(function (client) {
+    data.sendTo.forEach(function (client) {
             console.log(client);
             inhtml += ` <div class="chip">
             ${client}
             </div>`;
         });
-        console.log(inhtml);
+    if (data.username === userDetails) {
+        fhtml = `<div class="bubble-speech bubble-right" style="margin: auto; margin-top: 1em;margin-right: 3em !important;">`;
     }
     else {
-        inhtml = '';
         fhtml = `<div class="bubble-speech bubble-left">`;
     }
 
