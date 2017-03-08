@@ -18,14 +18,14 @@ function login(req, res) {
 
             u = xss(u);
 
-            // var unsc = db.get().collection('unsc');
+            var unsc = db.get().collection('unsc');
             // var disec = db.get().collection('disec');
             // var unhrc = db.get().collection('unhrc');
             // var tll = db.get().collection('tll');
             // var osce = db.get().collection('osce');
-            var iaea = db.get().collection('iaea');
+            // var iaea = db.get().collection('iaea');
 
-            iaea.findOne({country: u, id:p}, function (err, person) {
+            unsc.findOne({country: u, id:p}, function (err, person) {
                 assert.equal(err, null);
                 var token = jwt.sign({
                     person: person,

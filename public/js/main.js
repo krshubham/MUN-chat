@@ -8,7 +8,7 @@
  * This one keeps changing if you change your network or reconnect some other time   *
  **************************************************************************************/
 
-var windowFocused;
+var windowFocused = true;
 /*Window blur and focus events*/
 window.onblur = function () {
     console.log('window blurred');
