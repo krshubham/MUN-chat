@@ -11,7 +11,7 @@ var xss = require('xss');
 
 var onlineClients = [];
 var pressId;
-function showAllChats(socket, app,token) {
+function showAllChats(socket, app, token) {
     socket.emit('connectedClient', {
         data: onlineClients
     });
@@ -24,6 +24,7 @@ function showAllChats(socket, app,token) {
      * @event responsible for delegating all the events after a new message is genarated
      * */
     socket.on('newMessage', function (message) {
+        message.message = xss(message.message);
         var messages = maindb.get().collection('messages');
         console.log('The new message is: ');
         console.log(message);
@@ -44,7 +45,7 @@ function showAllChats(socket, app,token) {
 
         var sendTo = message.sendTo;
 
-        if (sendTo.length === 1 && sendTo.indexOf('everyone') >= 0) {
+        if (sendTo.length === 1 && sendTo.indexOf('everyone') === 0) {
             app.emit('newMessage', message);
             /*If its for everyone, insert into the db for all*/
             /*
@@ -72,24 +73,26 @@ function showAllChats(socket, app,token) {
                 }
             });
         }
-        /*If nobody is specified, send message to everybody*/
-        if ((sendTo.length > 0) && (sendTo.indexOf('international press') < 0)) {
-            console.log('IP not present');
-            socket.broadcast.to(pressId).emit('newMessage', message);
-        }
-        if ((sendTo.length > 0) && (sendTo.indexOf('international press') >= 0)) {
-            socket.broadcast.to(pressId).emit('newMessage', message);
-        }
-        for (var receiver in sendTo) {
-            for (var client in onlineClients) {
-                // console.log(onlineClients[client].username.toLowerCase() + ' : ' + sendTo[receiver].toLowerCase());
-                // console.log(onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase());
-                if (onlineClients[client].username === sendTo[receiver]) {
-                    socket.broadcast.to(onlineClients[client].socketId).emit('newMessage', message);
+        /*/!*If nobody is specified, send message to everybody*!/
+         if ((sendTo.length > 0) && (sendTo.indexOf('international press') < 0)) {
+         console.log('IP not present');
+         socket.broadcast.to(pressId).emit('newMessage', message);
+         }
+         if ((sendTo.length > 0) && (sendTo.indexOf('international press') >= 0)) {
+         socket.broadcast.to(pressId).emit('newMessage', message);
+         }*/
+        if (!(sendTo.length === 1 && sendTo.indexOf('everyone') === 0)) {
+            for (var receiver in sendTo) {
+                for (var client in onlineClients) {
+                    // console.log(onlineClients[client].username.toLowerCase() + ' : ' + sendTo[receiver].toLowerCase());
+                    // console.log(onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase());
+                    if (onlineClients[client].username === sendTo[receiver]) {
+                        socket.broadcast.to(onlineClients[client].socketId).emit('newMessage', message);
+                    }
                 }
             }
+            socket.emit('newMessage', message);
         }
-        socket.emit('newMessage', message);
         /*Insert into the messages db for the ip*/
         messages.insertOne(message).then(function (callback) {
             // console.log(callback.ops[0]);
@@ -161,7 +164,7 @@ exports = module.exports = function (io) {
         if (token === 'press') {
             pressId = socketId;
             /*Let this method handle all the events for the international press*/
-            handlePress(socket, app,token);
+            handlePress(socket, app, token);
             return;
         }
         else {
@@ -209,6 +212,7 @@ exports = module.exports = function (io) {
          * @event responsible for delegating all the events after a new message is genarated
          * */
         socket.on('newMessage', function (message) {
+            message.message = xss(message.message);
             console.log('The new message is: ');
             console.log(message);
             var socketId = socket.id;
@@ -228,7 +232,7 @@ exports = module.exports = function (io) {
 
             var sendTo = message.sendTo;
 
-            if (sendTo.length === 1 && sendTo.indexOf('everyone') >= 0) {
+            if (sendTo.length === 1 && sendTo.indexOf('everyone') === 0) {
                 app.emit('newMessage', message);
                 /*If its for everyone, insert into the db for all*/
                 /*
@@ -257,23 +261,26 @@ exports = module.exports = function (io) {
                 });
             }
             /*If nobody is specified, send message to everybody*/
-            if ((sendTo.length > 0) && (sendTo.indexOf('international press') < 0)) {
-                console.log('IP not present');
-                socket.broadcast.to(pressId).emit('newMessage', message);
-            }
-            if ((sendTo.length > 0) && (sendTo.indexOf('international press') >= 0)) {
-                socket.broadcast.to(pressId).emit('newMessage', message);
-            }
-            for (var receiver in sendTo) {
-                for (var client in onlineClients) {
-                    // console.log(onlineClients[client].username.toLowerCase() + ' : ' + sendTo[receiver].toLowerCase());
-                    // console.log(onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase());
-                    if (onlineClients[client].username === sendTo[receiver]) {
-                        socket.broadcast.to(onlineClients[client].socketId).emit('newMessage', message);
+            console.log((sendTo.length === 1 && sendTo.indexOf('everyone') === 0));
+            if (!(sendTo.length === 1 && sendTo.indexOf('everyone') === 0)) {
+                for (var receiver in sendTo) {
+                    for (var client in onlineClients) {
+                        // console.log(onlineClients[client].username.toLowerCase() + ' : ' + sendTo[receiver].toLowerCase());
+                        // console.log(onlineClients[client].username.toLowerCase() === sendTo[receiver].toLowerCase());
+                        if (onlineClients[client].username === sendTo[receiver]) {
+                            socket.broadcast.to(onlineClients[client].socketId).emit('newMessage', message);
+                        }
                     }
                 }
+                socket.emit('newMessage', message);
             }
-            socket.emit('newMessage', message);
+            /*Insert into the messages db for the ip*/
+            messages.insertOne(message).then(function (callback) {
+                // console.log(callback.ops[0]);
+            })
+                .catch(function (err) {
+                    console.log(err);
+                });
             /*Insert into the messages db for the ip*/
             messages.insertOne(message).then(function (callback) {
                 // console.log(callback.ops[0]);

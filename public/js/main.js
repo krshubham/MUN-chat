@@ -50,12 +50,13 @@ function setTitle(text) {
 
 function notifyMe(data) {
 
+
     if (Notification.permission !== "granted")
         Notification.requestPermission();
     else {
         var notification = new Notification('VITCMUN 2017', {
             icon: '/images/small_logo.png',
-            body: data
+            body: data.username + ' : ' + data.message
         });
 
         notification.onclick = function () {
@@ -94,6 +95,9 @@ function sendMessage(e) {
         return false;
     }
     $('input#message').val('');
+    var tmp = document.createElement("DIV");
+    tmp.innerHTML = message;
+    message = tmp.textContent || tmp.innerText || "";
     socket.emit('newMessage', {
         message: message,
         username: uname,
@@ -142,7 +146,7 @@ socket.on('newMessage', function (data) {
         var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
         if (!(data.username === userDetails)) {
             playAudio();
-            notifyMe(data.message);
+            notifyMe(data);
         }
     }
     else {
@@ -204,6 +208,21 @@ function addCountry(e) {
         Materialize.toast('You have added everyone already. Remove others!', 2000);
         return false;
     }
+    if ((country === 'everyone') && (addedCountries.length > 0)) {
+        addedCountries = [];
+        $('div#sending-to').html('');
+        addedCountries.push(country);
+        var html = `
+        <div class="chip">
+            ${country}
+            <a href="#" data-value="${country}" onclick="removeCountry(this)">
+                <i class="close material-icons">close</i>
+            </a>
+        </div>
+    `;
+        $('div#sending-to').append(html);
+        return false;
+    }
     addedCountries.push(country);
     var html = `
         <div class="chip">
@@ -226,6 +245,9 @@ function removeCountry(obj) {
 }
 
 socket.on('connectedClient', function (data) {
+    if (data.data.length === 1) {
+        return false;
+    }
     console.log(data);
     var html = '';
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
@@ -237,11 +259,11 @@ socket.on('connectedClient', function (data) {
          <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
         `;
             html += inhtml;
-            $('ul#onlineClients').html('');
-            $('ul#onlineClients').html('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
-            $('ul#onlineClients').append(html);
         }
     });
+    $('ul#onlineClients').html('');
+    $('ul#onlineClients').html('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').append(html);
 
 });
 
@@ -254,14 +276,22 @@ socket.on('connClientName', function (data) {
 socket.on('disconnectedClient', function (data) {
     console.log(data);
     var html = '';
+    var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.data.forEach(function (client) {
-        var inhtml = `
-         <li class="collection-item">${client.username}</li>
+        if (client.username === userDetails) {
+            console.log('I am here');
+            //nothing
+        }
+        else {
+            var inhtml = `
+         <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
         `;
-        html += inhtml;
-        $('ul#onlineClients').html('');
-        $('ul#onlineClients').append(html);
+            html += inhtml;
+        }
     });
+    $('ul#onlineClients').html('');
+    $('ul#onlineClients').html('<li class="collection-item" onclifck="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').append(html);
 });
 
 socket.on('disconnClientName', function (data) {
@@ -269,6 +299,8 @@ socket.on('disconnClientName', function (data) {
 });
 
 socket.on('getSession', function (data) {
+    var country = document.querySelector('input#user-details').getAttribute('data-username');
+    setTitle(country + ' | VITCMUN2017');
     var htmlArray = [];
     console.log(data);
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');

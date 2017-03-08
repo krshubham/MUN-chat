@@ -185,6 +185,21 @@ function addCountry(e) {
         Materialize.toast('You have added everyone already. Remove others!', 2000);
         return false;
     }
+    if((country === 'everyone') && (addedCountries.length > 0)){
+        addedCountries = [];
+        $('div#sending-to').html('');
+        addedCountries.push(country);
+        var html = `
+        <div class="chip">
+            ${country}
+            <a href="#" data-value="${country}" onclick="removeCountry(this)">
+                <i class="close material-icons">close</i>
+            </a>
+        </div>
+    `;
+        $('div#sending-to').append(html);
+        return false;
+    }
     addedCountries.push(country);
     var html = `
         <div class="chip">
@@ -233,12 +248,13 @@ socket.on('disconnectedClient', function (data) {
     var html = '';
     data.data.forEach(function (client) {
         var inhtml = `
-         <li class="collection-item">${client.username}</li>
+         <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
         `;
         html += inhtml;
-        $('ul#onlineClients').html('');
-        $('ul#onlineClients').append(html);
     });
+    $('ul#onlineClients').html('');
+    $('ul#onlineClients').html('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').append(html);
 });
 
 socket.on('disconnClientName', function (data) {
