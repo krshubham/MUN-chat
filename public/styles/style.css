@@ -1,5 +1,5 @@
-@import url('demo.css');
-@import url('font-awesome.css');
+@import url('/styles/demo.css');
+@import url('/styles/font-awesome.css');
 
 /* GLOBALS */
 
@@ -443,7 +443,7 @@
 .form-3 input[type=text],
 .form-3 input[type=password] {
     /* Size and position */
-    width: 90%;
+    width: 100%;
     float: left;
     padding: 8px 5px;
     margin-bottom: 10px;

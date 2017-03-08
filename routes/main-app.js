@@ -276,13 +276,7 @@ exports = module.exports = function (io) {
             }
             /*Insert into the messages db for the ip*/
             messages.insertOne(message).then(function (callback) {
-                // console.log(callback.ops[0]);
-            })
-                .catch(function (err) {
-                    console.log(err);
-                });
-            /*Insert into the messages db for the ip*/
-            messages.insertOne(message).then(function (callback) {
+                app.emit('refresh');
                 // console.log(callback.ops[0]);
             })
                 .catch(function (err) {

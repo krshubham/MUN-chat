@@ -24,25 +24,6 @@ var socket = io.connect('/app');
 var addedCountries = [];
 
 
-if (addedCountries.length) {
-    var list = addedCountries.split(',');
-    list.forEach(function (country) {
-        var html = `
-        <div class="chip">
-            ${country}
-            <a href="#" data-value="${country}" onclick="removeCountry(this)">
-                <i class="close material-icons">close</i>
-            </a>
-        </div>
-    `;
-        $('div#sending-to').append(html);
-    });
-    addedCountries = addedCountries.split(',');
-}
-else {
-    addedCountries = [];
-}
-
 function setTitle(text) {
     var title = document.getElementsByTagName('title')[0];
     title.innerHTML = text;
@@ -246,13 +227,15 @@ function removeCountry(obj) {
 
 socket.on('connectedClient', function (data) {
     if (data.data.length === 1) {
+        $('ul#onlineClients').html('');
+        $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">International Press</li>');
         return false;
     }
     console.log(data);
     var html = '';
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.data.forEach(function (client) {
-        if (client.username === userDetails) {
+        if ((client.username === userDetails) || (client.username === 'chair') || (client.username === 'vice_chair') || (client.username === 'director')) {
             //do nothing
         } else {
             var inhtml = `
@@ -262,8 +245,15 @@ socket.on('connectedClient', function (data) {
         }
     });
     $('ul#onlineClients').html('');
-    $('ul#onlineClients').html('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">International Press</li>');
     $('ul#onlineClients').append(html);
+    data.data.forEach(function (client) {
+        console.log(client.username !== userDetails);
+        if (((client.username === 'chair') || (client.username === 'vice_chair') || (client.username === 'director')) && (client.username !== userDetails)) {
+            $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">'+client.username+'</li>')
+        }
+    });
+    $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
 
 });
 
@@ -275,6 +265,10 @@ socket.on('connClientName', function (data) {
 
 socket.on('disconnectedClient', function (data) {
     console.log(data);
+    if (data.data.length === 1) {
+        $('ul#onlineClients').html('');
+        return false;
+    }
     var html = '';
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.data.forEach(function (client) {
@@ -290,7 +284,8 @@ socket.on('disconnectedClient', function (data) {
         }
     });
     $('ul#onlineClients').html('');
-    $('ul#onlineClients').html('<li class="collection-item" onclifck="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').append('<li class="collection-item" onclifck="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
     $('ul#onlineClients').append(html);
 });
 

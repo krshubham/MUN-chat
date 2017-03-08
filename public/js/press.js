@@ -319,3 +319,7 @@ function playAudio() {
 function pauseAudio() {
     x.pause();
 }
+
+socket.on('refresh', function () {
+    window.location.reload();
+});
