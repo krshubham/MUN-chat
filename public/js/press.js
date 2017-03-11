@@ -380,3 +380,4 @@ function playAudio() {
 function pauseAudio() {
     x.pause();
 }
+    

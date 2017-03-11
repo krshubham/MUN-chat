@@ -91,6 +91,14 @@
         border-radius: 10px;
         background: #6d6d6d;
     }
+
+    div#client-scroll {
+        height: 500px;
+        overflow-y: hidden;
+    }
+    div#client-scroll:hover{
+        overflow-y: auto;
+    }
 </style>
 <body style="overflow-y: hidden;">
 <nav>
@@ -98,7 +106,8 @@
         <a class="brand-logo hide-on-med-and-down" href="#" style="margin-left: 10px;font-size: 1em;"> VITCMUN 2017</a>
         <a href="#" class="brand-logo center">{{user.country}}</a>
         <ul id="nav-mobile" class="right">
-            <li><a href="#" onclick="location.href = '/';"><i class="material-icons">power_settings_new</i> Logout</a>
+            <li>
+                <a href="#" onclick="location.href = '/';"><i class="material-icons">power_settings_new</i> Logout</a>
             </li>
         </ul>
     </div>
@@ -108,8 +117,10 @@
         <div class="col s12 m3" id="online-countries">
             <div class="row">
                 <h4>Online Countries</h4>
-                <ul class="collection" id="onlineClients">
-                </ul>
+                <div id="client-scroll">
+                    <ul class="collection" id="onlineClients">
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="col m9 s12">
@@ -118,7 +129,7 @@
                 </div>
                 <hr>
                 <div class="col s12 m12">
-                    <div class="messages" style="overflow-x: hidden;">
+                    <div class="messages" style="overflow-x: hidden;" onscroll="setScrolled(event)">
                     </div>
                     <div class="col m12 s12">
                         <div id="inputBox">
@@ -139,16 +150,29 @@
         </div>
     </div>
 </div>
+<div class="fixed-action-btn" style="bottom: 45px; right: 24px;visibility: hidden;background-color: rgb(52, 73, 94);" onclick="handleDownMove(event)">
+            <span class="new badge blue" id="unread-messages" style="visibility: hidden;"></span>
+          <a class="btn-floating btn-large red">
+            <i class="material-icons">arrow_downward</i>
+          </a>
+</div>
 <audio id="myAudio">
     <source src="/media/tone.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
 </audio>
 </body>
+<style>
+    .fixed-action-btn {
+    position: fixed;
+    padding-top: 15px;
+    margin-bottom: 0;
+    z-index: 998;
+}
+</style>
 <script>
-    $('div#online-countries').css('height', window.innerHeight);
-    $('div.messages').css('height', (window.innerHeight - 250) + 'px');
+    $('div.messages').css('height', (window.innerHeight - 280) + 'px');
 </script>
 <script src="/js/socket.io.min.js"></script>
-<script src="/js/press.js"></script>
+<script src="/js/main.js"></script>
 <script src="/js/xss.min.js"></script>
 </html>
