@@ -129,7 +129,7 @@
                 </div>
                 <hr>
                 <div class="col s12 m12">
-                    <div class="messages" style="overflow-x: hidden;">
+                    <div class="messages" style="overflow-x: hidden;" onscroll="setScrolled(event)">
                     </div>
                     <div class="col m12 s12">
                         <div id="inputBox">
@@ -150,13 +150,27 @@
         </div>
     </div>
 </div>
+<div class="fixed-action-btn" style="bottom: 45px; right: 24px;visibility: hidden" onclick="handleDownMove(event)">
+            <span class="new badge blue" id="unread-messages" style="visibility: hidden;"></span>
+          <a class="btn-floating btn-large red">
+            <i class="material-icons">arrow_downward</i>
+          </a>
+</div>
 <audio id="myAudio">
     <source src="/media/tone.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
 </audio>
 </body>
+<style>
+    .fixed-action-btn {
+    position: fixed;
+    padding-top: 15px;
+    margin-bottom: 0;
+    z-index: 998;
+}
+</style>
 <script>
-    $('div.messages').css('height', (window.innerHeight - 250) + 'px');
+    $('div.messages').css('height', (window.innerHeight - 280) + 'px');
 </script>
 <script src="/js/socket.io.min.js"></script>
 <script src="/js/main.js"></script>

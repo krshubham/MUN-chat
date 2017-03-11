@@ -1,14 +1,43 @@
 //IP Addresses to use
 /*************************************************************************************
- * For server usage: http://35.154.38.81/app                                         *
- *                                                                                   *
- * For localhost usage: http://localhost:9876/app                                    *
- *                                                                                   *
- * For usage in local network: http://192.168.1.100:9876/app                         *
- * This one keeps changing if you change your network or reconnect some other time   *
- **************************************************************************************/
+* For server usage: http://35.154.38.81/app                                         *
+*                                                                                   *
+* For localhost usage: http://localhost:9876/app                                    *
+*                                                                                   *
+* For usage in local network: http://192.168.1.100:9876/app                         *
+* This one keeps changing if you change your network or reconnect some other time   *
+**************************************************************************************/
 
-var windowFocused;
+var windowFocused = true;
+var scrolled = false;
+var lastScrollTop = 0;
+var messages = document.getElementsByClassName('messages')[0];
+var unreadCount = 0;
+
+function handleDownMove(e){
+    console.log(e.target);
+    $('div.messages').animate({
+        scrollTop: messages.scrollHeight
+    },1000);
+    unreadCount = 0;
+}
+
+function setScrolled(e){
+    var st = messages.scrollTop;
+    console.log(messages.scrollHeight - st === messages.offsetHeight);    
+    if (st > lastScrollTop && ( messages.scrollHeight - st === messages.offsetHeight)){
+        scrolled = false;
+        var span = $('span#unread-messages');
+        span.html('');
+        span.css('visibility','hidden');
+        unreadCount = 0;
+        $('div.fixed-action-btn').css('visibility','hidden');        
+    } else {
+        scrolled = true;
+        $('div.fixed-action-btn').css('visibility','visible');
+    }
+    lastScrollTop = st;
+}
 /*Window blur and focus events*/
 window.onblur = function () {
     console.log('window blurred');
@@ -24,46 +53,28 @@ var socket = io.connect('/app');
 var addedCountries = [];
 
 
-if (addedCountries.length) {
-    var list = addedCountries.split(',');
-    list.forEach(function (country) {
-        var html = `
-        <div class="chip">
-            ${country}
-            <a href="#" data-value="${country}" onclick="removeCountry(this)">
-                <i class="close material-icons">close</i>
-            </a>
-        </div>
-    `;
-        $('div#sending-to').append(html);
-    });
-    addedCountries = addedCountries.split(',');
-}
-else {
-    addedCountries = [];
-}
-
 function setTitle(text) {
     var title = document.getElementsByTagName('title')[0];
     title.innerHTML = text;
 }
 
 function notifyMe(data) {
-
+    
+    
     if (Notification.permission !== "granted")
-        Notification.requestPermission();
+    Notification.requestPermission();
     else {
         var notification = new Notification('VITCMUN 2017', {
             icon: '/images/small_logo.png',
-            body: data
+            body: data.username + ' : ' + data.message
         });
-
+        
         notification.onclick = function () {
             window.focus();
         };
-
+        
     }
-
+    
 }
 
 socket.on('connect', function () {
@@ -94,6 +105,9 @@ function sendMessage(e) {
         return false;
     }
     $('input#message').val('');
+    var tmp = document.createElement("DIV");
+    tmp.innerHTML = message;
+    message = tmp.textContent || tmp.innerText || "";
     socket.emit('newMessage', {
         message: message,
         username: uname,
@@ -104,43 +118,61 @@ function sendMessage(e) {
 
 socket.on('newMessage', function (data) {
     console.log(data);
-    var inhtml = ``;
+    var inhtml = `<br>`;
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     var fhtml = ``;
-    data.sendTo.forEach(function (client) {
+    if (data.username === userDetails) {
+        fhtml = `<div class="bubble-speech bubble-right" style="margin: auto; margin-top: 1em;margin-right: 3em !important;">`;
+        data.sendTo.forEach(function (client) {
             console.log(client);
             inhtml += ` <div class="chip">
             ${client}
             </div>`;
         });
-    if (data.username === userDetails) {
-        fhtml = `<div class="bubble-speech bubble-right" style="margin: auto; margin-top: 1em;margin-right: 3em !important;">`;
+        console.log(inhtml);
     }
     else {
+        data.sendTo.forEach(function (client) {
+            console.log(client);
+            inhtml += ` <div class="chip">
+            ${client}
+            </div>`;
+        });
         fhtml = `<div class="bubble-speech bubble-left">`;
     }
-
+    
     var html = fhtml + `<h6 class="author">
-                        ${data.username}
-                    </h6>
-                    <div class="message">
-                        ${data.message}
-                   </div>`
-        + inhtml +
-        `</div>`;
+    ${data.username}
+    </h6>
+    <div class="message">
+    ${data.message}
+    </div>`
+    + inhtml +
+    `</div>`;
     $('div.messages').append(html);
-    var messages = document.getElementsByClassName('messages')[0];
-    messages.scrollTop = messages.scrollHeight;
+    updateScroll();
+    function updateScroll(){
+        if(!scrolled){
+            messages.scrollTop = messages.scrollHeight;        
+        }
+        else{
+            unreadCount++;
+            var span = $('span#unread-messages');
+            span.html(unreadCount);
+            span.css('visibility','visible');
+        }
+    }   
     if (windowFocused !== true) {
         var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
         if (!(data.username === userDetails)) {
             playAudio();
-            notifyMe(data.message);
+            notifyMe(data);
         }
     }
     else {
         //do nothing
     }
+
     data = null;
 });
 
@@ -183,29 +215,29 @@ function addCountry(e) {
         Materialize.toast('You have added everyone already. Remove others!', 2000);
         return false;
     }
-    if((country === 'everyone') && (addedCountries.length > 0)){
+    if ((country === 'everyone') && (addedCountries.length > 0)) {
         addedCountries = [];
         $('div#sending-to').html('');
         addedCountries.push(country);
         var html = `
         <div class="chip">
-            ${country}
-            <a href="#" data-value="${country}" onclick="removeCountry(this)">
-                <i class="close material-icons">close</i>
-            </a>
+        ${country}
+        <a href="#" data-value="${country}" onclick="removeCountry(this)">
+        <i class="close material-icons">close</i>
+        </a>
         </div>
-    `;
+        `;
         $('div#sending-to').append(html);
         return false;
     }
     addedCountries.push(country);
     var html = `
-        <div class="chip">
-            ${country}
-            <a href="#" data-value="${country}" onclick="removeCountry(this)">
-                <i class="close material-icons">close</i>
-            </a>
-        </div>
+    <div class="chip">
+    ${country}
+    <a href="#" data-value="${country}" onclick="removeCountry(this)">
+    <i class="close material-icons">close</i>
+    </a>
+    </div>
     `;
     $('input.country-val').val('');
     $('div#sending-to').append(html);
@@ -220,19 +252,35 @@ function removeCountry(obj) {
 }
 
 socket.on('connectedClient', function (data) {
+    if (data.data.length === 1) {
+        $('ul#onlineClients').html('');
+        $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">International Press</li>');
+        return false;
+    }
     console.log(data);
     var html = '';
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.data.forEach(function (client) {
-        var inhtml = `
-         <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
-        `;
-        html += inhtml;
-        $('ul#onlineClients').html('');
-        $('ul#onlineClients').html('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
-        $('ul#onlineClients').append(html);
+        if ((client.username === userDetails) || (client.username === 'chair') || (client.username === 'vice_chair') || (client.username === 'director')) {
+            //do nothing
+        } else {
+            var inhtml = `
+            <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
+            `;
+            html += inhtml;
+        }
     });
-
+    $('ul#onlineClients').html('');
+    $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">International Press</li>');
+    $('ul#onlineClients').append(html);
+    data.data.forEach(function (client) {
+        console.log(client.username !== userDetails);
+        if (((client.username === 'chair') || (client.username === 'vice_chair') || (client.username === 'director')) && (client.username !== userDetails)) {
+            $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">'+client.username+'</li>')
+        }
+    });
+    $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    
 });
 
 socket.on('connClientName', function (data) {
@@ -243,15 +291,27 @@ socket.on('connClientName', function (data) {
 
 socket.on('disconnectedClient', function (data) {
     console.log(data);
+    if (data.data.length === 1) {
+        $('ul#onlineClients').html('');
+        return false;
+    }
     var html = '';
+    var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.data.forEach(function (client) {
-        var inhtml = `
-         <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
-        `;
-        html += inhtml;
+        if (client.username === userDetails) {
+            console.log('I am here');
+            //nothing
+        }
+        else {
+            var inhtml = `
+            <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
+            `;
+            html += inhtml;
+        }
     });
     $('ul#onlineClients').html('');
-    $('ul#onlineClients').html('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').append('<li class="collection-item" onclifck="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
     $('ul#onlineClients').append(html);
 });
 
@@ -260,6 +320,8 @@ socket.on('disconnClientName', function (data) {
 });
 
 socket.on('getSession', function (data) {
+    var country = document.querySelector('input#user-details').getAttribute('data-username');
+    setTitle(country + ' | VITCMUN2017');
     var htmlArray = [];
     console.log(data);
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
@@ -271,30 +333,30 @@ socket.on('getSession', function (data) {
             message.sendTo.forEach(function (client) {
                 console.log(client);
                 inhtml += ` <div class="chip" style="font-size: 0.8em;">
-            ${client}
-            </div>`;
+                ${client}
+                </div>`;
             });
             console.log(inhtml);
-
+            
         }
         else {
             message.sendTo.forEach(function (client) {
                 console.log(client);
                 inhtml += ` <div class="chip" style="font-size: 0.8em;">
-            ${client}
-            </div>`;
+                ${client}
+                </div>`;
             });
             fhtml = `<div class="bubble-speech bubble-left">`;
         }
-
+        
         var html = fhtml + `<h6 class="author">
-                                ${message.username}
-                            </h6>
-                            <div class="message">
-                                ${message.message}
-                            </div>` +
-            inhtml + `
-                        </div>`;
+        ${message.username}
+        </h6>
+        <div class="message">
+        ${message.message}
+        </div>` +
+        inhtml + `
+        </div>`;
         console.log(html);
         // $('div.messages').append(html);
         htmlArray.push(html);
@@ -309,7 +371,6 @@ socket.on('getSession', function (data) {
     htmlArray = [];
 });
 
-
 var x = document.getElementById("myAudio");
 
 function playAudio() {
@@ -319,7 +380,3 @@ function playAudio() {
 function pauseAudio() {
     x.pause();
 }
-
-socket.on('refresh', function () {
-    window.location.reload();
-});

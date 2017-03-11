@@ -1,14 +1,43 @@
 //IP Addresses to use
 /*************************************************************************************
- * For server usage: http://35.154.38.81/app                                         *
- *                                                                                   *
- * For localhost usage: http://localhost:9876/app                                    *
- *                                                                                   *
- * For usage in local network: http://192.168.1.100:9876/app                         *
- * This one keeps changing if you change your network or reconnect some other time   *
- **************************************************************************************/
+* For server usage: http://35.154.38.81/app                                         *
+*                                                                                   *
+* For localhost usage: http://localhost:9876/app                                    *
+*                                                                                   *
+* For usage in local network: http://192.168.1.100:9876/app                         *
+* This one keeps changing if you change your network or reconnect some other time   *
+**************************************************************************************/
 
 var windowFocused = true;
+var scrolled = false;
+var lastScrollTop = 0;
+var messages = document.getElementsByClassName('messages')[0];
+var unreadCount = 0;
+
+function handleDownMove(e){
+    console.log(e.target);
+    $('div.messages').animate({
+        scrollTop: messages.scrollHeight
+    },1000);
+    unreadCount = 0;
+}
+
+function setScrolled(e){
+    var st = messages.scrollTop;
+    console.log(messages.scrollHeight - st === messages.offsetHeight);    
+    if (st > lastScrollTop && ( messages.scrollHeight - st === messages.offsetHeight)){
+        scrolled = false;
+        var span = $('span#unread-messages');
+        span.html('');
+        span.css('visibility','hidden');
+        unreadCount = 0;
+        $('div.fixed-action-btn').css('visibility','hidden');        
+    } else {
+        scrolled = true;
+        $('div.fixed-action-btn').css('visibility','visible');
+    }
+    lastScrollTop = st;
+}
 /*Window blur and focus events*/
 window.onblur = function () {
     console.log('window blurred');
@@ -30,22 +59,22 @@ function setTitle(text) {
 }
 
 function notifyMe(data) {
-
-
+    
+    
     if (Notification.permission !== "granted")
-        Notification.requestPermission();
+    Notification.requestPermission();
     else {
         var notification = new Notification('VITCMUN 2017', {
             icon: '/images/small_logo.png',
             body: data.username + ' : ' + data.message
         });
-
+        
         notification.onclick = function () {
             window.focus();
         };
-
+        
     }
-
+    
 }
 
 socket.on('connect', function () {
@@ -89,7 +118,7 @@ function sendMessage(e) {
 
 socket.on('newMessage', function (data) {
     console.log(data);
-    var inhtml = ``;
+    var inhtml = `<br>`;
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     var fhtml = ``;
     if (data.username === userDetails) {
@@ -111,18 +140,28 @@ socket.on('newMessage', function (data) {
         });
         fhtml = `<div class="bubble-speech bubble-left">`;
     }
-
+    
     var html = fhtml + `<h6 class="author">
-                        ${data.username}
-                    </h6>
-                    <div class="message">
-                        ${data.message}
-                   </div>`
-        + inhtml +
-        `</div>`;
+    ${data.username}
+    </h6>
+    <div class="message">
+    ${data.message}
+    </div>`
+    + inhtml +
+    `</div>`;
     $('div.messages').append(html);
-    var messages = document.getElementsByClassName('messages')[0];
-    messages.scrollTop = messages.scrollHeight;
+    updateScroll();
+    function updateScroll(){
+        if(!scrolled){
+            messages.scrollTop = messages.scrollHeight;        
+        }
+        else{
+            unreadCount++;
+            var span = $('span#unread-messages');
+            span.html(unreadCount);
+            span.css('visibility','visible');
+        }
+    }   
     if (windowFocused !== true) {
         var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
         if (!(data.username === userDetails)) {
@@ -133,6 +172,7 @@ socket.on('newMessage', function (data) {
     else {
         //do nothing
     }
+
     data = null;
 });
 
@@ -160,20 +200,6 @@ socket.on('typing', function (data) {
     timeout = setTimeout(removeTyping, 500);
 });
 
-$(document).ready(function () {
-    $('input.autocomplete').autocomplete({
-        data: {
-            "Apple": null,
-            "India": null,
-            "Italy": null,
-            "Microsoft": null,
-            "Google": 'http://placehold.it/250x250'
-        },
-        limit: 5, // The max amount of results that can be shown at once. Default: Infinity.
-    });
-});
-
-
 function addCountry(e) {
     e.preventDefault();
     var country = e.target.innerHTML;
@@ -195,23 +221,23 @@ function addCountry(e) {
         addedCountries.push(country);
         var html = `
         <div class="chip">
-            ${country}
-            <a href="#" data-value="${country}" onclick="removeCountry(this)">
-                <i class="close material-icons">close</i>
-            </a>
+        ${country}
+        <a href="#" data-value="${country}" onclick="removeCountry(this)">
+        <i class="close material-icons">close</i>
+        </a>
         </div>
-    `;
+        `;
         $('div#sending-to').append(html);
         return false;
     }
     addedCountries.push(country);
     var html = `
-        <div class="chip">
-            ${country}
-            <a href="#" data-value="${country}" onclick="removeCountry(this)">
-                <i class="close material-icons">close</i>
-            </a>
-        </div>
+    <div class="chip">
+    ${country}
+    <a href="#" data-value="${country}" onclick="removeCountry(this)">
+    <i class="close material-icons">close</i>
+    </a>
+    </div>
     `;
     $('input.country-val').val('');
     $('div#sending-to').append(html);
@@ -239,8 +265,8 @@ socket.on('connectedClient', function (data) {
             //do nothing
         } else {
             var inhtml = `
-         <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
-        `;
+            <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
+            `;
             html += inhtml;
         }
     });
@@ -254,7 +280,7 @@ socket.on('connectedClient', function (data) {
         }
     });
     $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
-
+    
 });
 
 socket.on('connClientName', function (data) {
@@ -278,8 +304,8 @@ socket.on('disconnectedClient', function (data) {
         }
         else {
             var inhtml = `
-         <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
-        `;
+            <li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">${client.username}</li>
+            `;
             html += inhtml;
         }
     });
@@ -307,30 +333,30 @@ socket.on('getSession', function (data) {
             message.sendTo.forEach(function (client) {
                 console.log(client);
                 inhtml += ` <div class="chip" style="font-size: 0.8em;">
-            ${client}
-            </div>`;
+                ${client}
+                </div>`;
             });
             console.log(inhtml);
-
+            
         }
         else {
             message.sendTo.forEach(function (client) {
                 console.log(client);
                 inhtml += ` <div class="chip" style="font-size: 0.8em;">
-            ${client}
-            </div>`;
+                ${client}
+                </div>`;
             });
             fhtml = `<div class="bubble-speech bubble-left">`;
         }
-
+        
         var html = fhtml + `<h6 class="author">
-                                ${message.username}
-                            </h6>
-                            <div class="message">
-                                ${message.message}
-                            </div>` +
-            inhtml + `
-                        </div>`;
+        ${message.username}
+        </h6>
+        <div class="message">
+        ${message.message}
+        </div>` +
+        inhtml + `
+        </div>`;
         console.log(html);
         // $('div.messages').append(html);
         htmlArray.push(html);
