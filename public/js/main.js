@@ -117,7 +117,7 @@ socket.on('connect', function () {
 
 function sendMessage(e) {
     e.preventDefault();
-    var hiddenel = document.querySelector('textarea#message');
+    var hiddenel = document.querySelector('input#user-details');
     var uname = hiddenel.getAttribute('data-username');
     var uid = hiddenel.getAttribute('data-id');
     var message = document.querySelector('textarea#message').value;
