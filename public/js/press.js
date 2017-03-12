@@ -39,36 +39,36 @@ function setScrolled(e){
 }
 
 function getCaret(el) { 
-  if (el.selectionStart) { 
-    return el.selectionStart; 
-  } else if (document.selection) { 
-    el.focus(); 
-
-    var r = document.selection.createRange(); 
-    if (r == null) { 
-      return 0; 
-    } 
-
-    var re = el.createTextRange(), 
+    if (el.selectionStart) { 
+        return el.selectionStart; 
+    } else if (document.selection) { 
+        el.focus(); 
+        
+        var r = document.selection.createRange(); 
+        if (r == null) { 
+            return 0; 
+        } 
+        
+        var re = el.createTextRange(), 
         rc = re.duplicate(); 
-    re.moveToBookmark(r.getBookmark()); 
-    rc.setEndPoint('EndToStart', re); 
-
-    return rc.text.length; 
-  }  
-  return 0; 
+        re.moveToBookmark(r.getBookmark()); 
+        rc.setEndPoint('EndToStart', re); 
+        
+        return rc.text.length; 
+    }  
+    return 0; 
 }
 
 $('textarea').keyup(function (event) {
-       if (event.keyCode == 13 && event.shiftKey) {
-           var content = this.value;
-           var caret = getCaret(this);
-           this.value = content.substring(0,caret);
-           event.stopPropagation();           
-      }else if(event.keyCode == 13)
-      {
-          $('form').submit();
-      }
+    if (event.keyCode == 13 && event.shiftKey) {
+        var content = this.value;
+        var caret = getCaret(this);
+        this.value = content.substring(0,caret);
+        event.stopPropagation();           
+    }else if(event.keyCode == 13)
+    {
+        $('form').submit();
+    }
 });
 /*Window blur and focus events*/
 window.onblur = function () {
@@ -110,6 +110,7 @@ function notifyMe(data) {
 }
 
 socket.on('connect', function () {
+    location.reload();
     console.log('connected');
     setTitle('connected | MUN');
     socket.emit('getSession');

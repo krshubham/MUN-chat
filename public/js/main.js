@@ -110,6 +110,7 @@ function notifyMe(data) {
 }
 
 socket.on('connect', function () {
+    location.reload();
     console.log('connected');
     setTitle('connected | MUN');
     socket.emit('getSession');
