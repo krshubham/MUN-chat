@@ -365,7 +365,7 @@ socket.on('disconnectedClient', function (data) {
         }
     });
     $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
-    $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(except EB)</li>');
     
 });
 
