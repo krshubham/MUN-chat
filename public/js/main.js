@@ -24,7 +24,6 @@ function handleDownMove(e){
 
 function setScrolled(e){
     var st = messages.scrollTop;
-    console.log(messages.scrollHeight - st === messages.offsetHeight);    
     if (st > lastScrollTop && ( messages.scrollHeight - st === messages.offsetHeight)){
         scrolled = false;
         var span = $('span#unread-messages');
@@ -38,6 +37,39 @@ function setScrolled(e){
     }
     lastScrollTop = st;
 }
+
+function getCaret(el) { 
+  if (el.selectionStart) { 
+    return el.selectionStart; 
+  } else if (document.selection) { 
+    el.focus(); 
+
+    var r = document.selection.createRange(); 
+    if (r == null) { 
+      return 0; 
+    } 
+
+    var re = el.createTextRange(), 
+        rc = re.duplicate(); 
+    re.moveToBookmark(r.getBookmark()); 
+    rc.setEndPoint('EndToStart', re); 
+
+    return rc.text.length; 
+  }  
+  return 0; 
+}
+
+$('textarea').keyup(function (event) {
+       if (event.keyCode == 13 && event.shiftKey) {
+           var content = this.value;
+           var caret = getCaret(this);
+           this.value = content.substring(0,caret);
+           event.stopPropagation();           
+      }else if(event.keyCode == 13)
+      {
+          $('form').submit();
+      }
+});
 /*Window blur and focus events*/
 window.onblur = function () {
     console.log('window blurred');
@@ -85,10 +117,10 @@ socket.on('connect', function () {
 
 function sendMessage(e) {
     e.preventDefault();
-    var hiddenel = e.target.getElementsByTagName('input')[0];
+    var hiddenel = document.querySelector('textarea#message');
     var uname = hiddenel.getAttribute('data-username');
     var uid = hiddenel.getAttribute('data-id');
-    var message = e.target.querySelector('input#message').value;
+    var message = document.querySelector('textarea#message').value;
     if (message.match(/^\s*$/g)) {
         Materialize.toast('Blank messages are not allowed', 1500);
         return false;
@@ -104,7 +136,7 @@ function sendMessage(e) {
         Materialize.toast('You have added everyone already. Remove others!', 2000);
         return false;
     }
-    $('input#message').val('');
+    $('textarea#message').val('');
     var tmp = document.createElement("DIV");
     tmp.innerHTML = message;
     message = tmp.textContent || tmp.innerText || "";
@@ -118,6 +150,17 @@ function sendMessage(e) {
 
 socket.on('newMessage', function (data) {
     console.log(data);
+    if (windowFocused !== true) {
+        var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
+        if (!(data.username === userDetails)) {
+            playAudio();
+            notifyMe(data);
+        }
+    }
+    else {
+        //do nothing
+    }
+    data.message = data.message.replace(/\n/g, "<br />");
     var inhtml = `<br>`;
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     var fhtml = ``;
@@ -129,7 +172,7 @@ socket.on('newMessage', function (data) {
             ${client}
             </div>`;
         });
-        console.log(inhtml);
+        // console.log(inhtml);
     }
     else {
         data.sendTo.forEach(function (client) {
@@ -162,17 +205,7 @@ socket.on('newMessage', function (data) {
             span.css('visibility','visible');
         }
     }   
-    if (windowFocused !== true) {
-        var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
-        if (!(data.username === userDetails)) {
-            playAudio();
-            notifyMe(data);
-        }
-    }
-    else {
-        //do nothing
-    }
-
+    
     data = null;
 });
 
@@ -257,7 +290,7 @@ socket.on('connectedClient', function (data) {
         $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">International Press</li>');
         return false;
     }
-    console.log(data);
+    // console.log(data);
     var html = '';
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.data.forEach(function (client) {
@@ -274,7 +307,7 @@ socket.on('connectedClient', function (data) {
     $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">International Press</li>');
     $('ul#onlineClients').append(html);
     data.data.forEach(function (client) {
-        console.log(client.username !== userDetails);
+        // console.log(client.username !== userDetails);
         if (((client.username === 'chair') || (client.username === 'vice_chair') || (client.username === 'director')) && (client.username !== userDetails)) {
             $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">'+client.username+'</li>')
         }
@@ -323,25 +356,26 @@ socket.on('getSession', function (data) {
     var country = document.querySelector('input#user-details').getAttribute('data-username');
     setTitle(country + ' | VITCMUN2017');
     var htmlArray = [];
-    console.log(data);
+    // console.log(data);
     var userDetails = document.querySelector('input#user-details').getAttribute('data-username');
     data.forEach(function (message) {
+        message.message = message.message.replace(/\n/g, "<br />");
         var inhtml = `<br>`;
         var fhtml = ``;
         if (message.username === userDetails) {
             fhtml = `<div class="bubble-speech bubble-right" style="margin: auto; margin-top: 1em;margin-right: 3em !important;">`;
             message.sendTo.forEach(function (client) {
-                console.log(client);
+                // console.log(client);
                 inhtml += ` <div class="chip" style="font-size: 0.8em;">
                 ${client}
                 </div>`;
             });
-            console.log(inhtml);
+            // console.log(inhtml);
             
         }
         else {
             message.sendTo.forEach(function (client) {
-                console.log(client);
+                // console.log(client);
                 inhtml += ` <div class="chip" style="font-size: 0.8em;">
                 ${client}
                 </div>`;
@@ -357,11 +391,11 @@ socket.on('getSession', function (data) {
         </div>` +
         inhtml + `
         </div>`;
-        console.log(html);
+        // console.log(html);
         // $('div.messages').append(html);
         htmlArray.push(html);
     });
-    console.log(htmlArray);
+    // console.log(htmlArray);
     $('div.messages').html('');
     htmlArray.forEach(function (html) {
         $('div.messages').append(html);

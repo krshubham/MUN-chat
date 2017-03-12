@@ -158,7 +158,6 @@ exports = module.exports = function (io) {
         /*get the token. Now this returns the token if a user is not the international press
          *The token will be === 'press' which will be further taken care by other methods
          *  */
-        console.log(socket.handshake);
         var token = socket.handshake.headers.referer.split('/')[4];
 
         /*If 4th index is press then it is international press trying to login. let the do this*/

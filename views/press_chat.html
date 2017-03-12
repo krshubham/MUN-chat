@@ -139,8 +139,8 @@
                                 <div class="form-group">
                                     <label for="message">Message:</label>
                                     <small id="typing-status"></small>
-                                    <input type="text" class="form-control" id="message"
-                                           placeholder="Enter your message here" onkeyup="typingStatus(this)">
+                                    <textarea type="text" class="" rows="4" id="message"
+                                           placeholder="Enter your message here(You can use shift+enter for new line)" onkeyup="typingStatus(this)"></textarea>
                                 </div>
                             </form>
                         </div>
@@ -150,9 +150,9 @@
         </div>
     </div>
 </div>
-<div class="fixed-action-btn" style="bottom: 45px; right: 24px;visibility: hidden;background-color: rgb(52, 73, 94);" onclick="handleDownMove(event)">
+<div class="fixed-action-btn" style="bottom: 45px; right: 24px;visibility: hidden;" onclick="handleDownMove(event)">
             <span class="new badge blue" id="unread-messages" style="visibility: hidden;"></span>
-          <a class="btn-floating btn-large red">
+          <a class="btn-floating btn-large" style="background-color: rgb(52, 73, 94);">
             <i class="material-icons">arrow_downward</i>
           </a>
 </div>
@@ -167,6 +167,11 @@
     padding-top: 15px;
     margin-bottom: 0;
     z-index: 998;
+}
+textarea{
+    resize: none;
+    border: none;
+    outline: none;
 }
 </style>
 <script>

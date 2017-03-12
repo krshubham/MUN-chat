@@ -8,6 +8,7 @@ div#inputBox, div#countryBox {
     overflow: hidden;
     bottom: 0;
     z-index: 1;
+    margin-top: 50px;
 }
 
 div.message-card {
