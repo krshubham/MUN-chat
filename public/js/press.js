@@ -343,9 +343,15 @@ socket.on('disconnectedClient', function (data) {
         }
     });
     $('ul#onlineClients').html('');
-    $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
-    $('ul#onlineClients').append('<li class="collection-item" onclifck="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">International Press</li>');
     $('ul#onlineClients').append(html);
+    data.data.forEach(function (client) {
+        // console.log(client.username !== userDetails);
+        if (((client.username === 'chair') || (client.username === 'vice_chair') || (client.username === 'director')) && (client.username !== userDetails)) {
+            $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">'+client.username+'</li>')
+        }
+    });
+    $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
 });
 
 socket.on('disconnClientName', function (data) {

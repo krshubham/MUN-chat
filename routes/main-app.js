@@ -229,7 +229,6 @@ exports = module.exports = function (io) {
                 socket.emit('error', 'Something went wrong');
             }
             message.username = user.username;
-
             var sendTo = message.sendTo;
 
             if (sendTo.length === 1 && sendTo.indexOf('everyone') === 0) {
@@ -260,8 +259,16 @@ exports = module.exports = function (io) {
                     }
                 });
             }
-            /*If nobody is specified, send message to everybody*/
-            console.log((sendTo.length === 1 && sendTo.indexOf('everyone') === 0));
+            else if(sendTo.length === 1 && sendTo.indexOf('Everyone(except EB)') === 0){
+                onlineClients.forEach(function(client){
+                    if((client.country === 'director') || (client.country === 'chair') || (client.country === 'vice_chair')){
+
+                    }
+                    else{
+                        socket.broadcast.to(client.socketId).emit('newMessage',message);
+                    }
+                });
+            }
             if (!(sendTo.length === 1 && sendTo.indexOf('everyone') === 0)) {
                 for (var receiver in sendTo) {
                     for (var client in onlineClients) {
@@ -276,7 +283,6 @@ exports = module.exports = function (io) {
             }
             /*Insert into the messages db for the ip*/
             messages.insertOne(message).then(function (callback) {
-                app.emit('refresh');
                 // console.log(callback.ops[0]);
             })
                 .catch(function (err) {

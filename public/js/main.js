@@ -39,36 +39,36 @@ function setScrolled(e){
 }
 
 function getCaret(el) { 
-  if (el.selectionStart) { 
-    return el.selectionStart; 
-  } else if (document.selection) { 
-    el.focus(); 
-
-    var r = document.selection.createRange(); 
-    if (r == null) { 
-      return 0; 
-    } 
-
-    var re = el.createTextRange(), 
+    if (el.selectionStart) { 
+        return el.selectionStart; 
+    } else if (document.selection) { 
+        el.focus(); 
+        
+        var r = document.selection.createRange(); 
+        if (r == null) { 
+            return 0; 
+        } 
+        
+        var re = el.createTextRange(), 
         rc = re.duplicate(); 
-    re.moveToBookmark(r.getBookmark()); 
-    rc.setEndPoint('EndToStart', re); 
-
-    return rc.text.length; 
-  }  
-  return 0; 
+        re.moveToBookmark(r.getBookmark()); 
+        rc.setEndPoint('EndToStart', re); 
+        
+        return rc.text.length; 
+    }  
+    return 0; 
 }
 
 $('textarea').keyup(function (event) {
-       if (event.keyCode == 13 && event.shiftKey) {
-           var content = this.value;
-           var caret = getCaret(this);
-           this.value = content.substring(0,caret);
-           event.stopPropagation();           
-      }else if(event.keyCode == 13)
-      {
-          $('form').submit();
-      }
+    if (event.keyCode == 13 && event.shiftKey) {
+        var content = this.value;
+        var caret = getCaret(this);
+        this.value = content.substring(0,caret);
+        event.stopPropagation();           
+    }else if(event.keyCode == 13)
+    {
+        $('form').submit();
+    }
 });
 /*Window blur and focus events*/
 window.onblur = function () {
@@ -240,12 +240,23 @@ function addCountry(e) {
         country = country.toLowerCase();
         country = country.split('(')[0];
     }
+    if(country === 'Everyone(except EB)'){
+        country = country;
+    }
+    if(((country === 'chair') || (country === 'vice_chair') || (country === 'director')) && (addedCountries.indexOf('Everyone(except EB)') >= 0)){
+        Materialize.toast('You cannot add an EB member now!',2000);
+        return false;        
+    }
+    if(addedCountries.indexOf('Everyone(except EB)') !==-1 && addedCountries.length > 0){
+        Materialize.toast('You have added everyone already!', 2000);  
+        return false;              
+    }
     if (addedCountries.indexOf(country) !== -1) {
         Materialize.toast('The Country is already added', 2000);
         return false;
     }
     if (addedCountries.indexOf('everyone') !== -1 && addedCountries.length > 0) {
-        Materialize.toast('You have added everyone already. Remove others!', 2000);
+        Materialize.toast('You have added everyone already!', 2000);
         return false;
     }
     if ((country === 'everyone') && (addedCountries.length > 0)) {
@@ -313,6 +324,7 @@ socket.on('connectedClient', function (data) {
         }
     });
     $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(except EB)</li>');    
     
 });
 
@@ -326,6 +338,7 @@ socket.on('disconnectedClient', function (data) {
     console.log(data);
     if (data.data.length === 1) {
         $('ul#onlineClients').html('');
+        $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">International Press</li>');        
         return false;
     }
     var html = '';
@@ -343,9 +356,17 @@ socket.on('disconnectedClient', function (data) {
         }
     });
     $('ul#onlineClients').html('');
-    $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
-    $('ul#onlineClients').append('<li class="collection-item" onclifck="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">International Press</li>');
     $('ul#onlineClients').append(html);
+    data.data.forEach(function (client) {
+        // console.log(client.username !== userDetails);
+        if (((client.username === 'chair') || (client.username === 'vice_chair') || (client.username === 'director')) && (client.username !== userDetails)) {
+            $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">'+client.username+'</li>')
+        }
+    });
+    $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    
 });
 
 socket.on('disconnClientName', function (data) {
