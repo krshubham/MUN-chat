@@ -117,7 +117,7 @@ socket.on('connect', function () {
 
 function sendMessage(e) {
     e.preventDefault();
-    var hiddenel = document.querySelector('textarea#message');
+    var hiddenel = document.querySelector('input#user-details');
     var uname = hiddenel.getAttribute('data-username');
     var uid = hiddenel.getAttribute('data-id');
     var message = document.querySelector('textarea#message').value;
@@ -240,12 +240,23 @@ function addCountry(e) {
         country = country.toLowerCase();
         country = country.split('(')[0];
     }
+    if(country === 'Everyone(except EB)'){
+        country = country;
+    }
+    if(((country === 'chair') || (country === 'vice_chair') || (country === 'director')) && (addedCountries.indexOf('Everyone(except EB)') >= 0)){
+        Materialize.toast('You cannot add an EB member now!',2000);
+        return false;        
+    }
+    if(addedCountries.indexOf('Everyone(except EB)') !==-1 && addedCountries.length > 0){
+        Materialize.toast('You have added everyone already!', 2000);  
+        return false;              
+    }
     if (addedCountries.indexOf(country) !== -1) {
         Materialize.toast('The Country is already added', 2000);
         return false;
     }
     if (addedCountries.indexOf('everyone') !== -1 && addedCountries.length > 0) {
-        Materialize.toast('You have added everyone already. Remove others!', 2000);
+        Materialize.toast('You have added everyone already!', 2000);
         return false;
     }
     if ((country === 'everyone') && (addedCountries.length > 0)) {
@@ -313,6 +324,7 @@ socket.on('connectedClient', function (data) {
         }
     });
     $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(except EB)</li>');    
     
 });
 
@@ -326,6 +338,7 @@ socket.on('disconnectedClient', function (data) {
     console.log(data);
     if (data.data.length === 1) {
         $('ul#onlineClients').html('');
+        $('ul#onlineClients').append('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">International Press</li>');        
         return false;
     }
     var html = '';
@@ -352,6 +365,8 @@ socket.on('disconnectedClient', function (data) {
         }
     });
     $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(online)</li>');
+    $('ul#onlineClients').prepend('<li class="collection-item" onclick="addCountry(event)" style="cursor: pointer;">Everyone(except EB)</li>');
+    
 });
 
 socket.on('disconnClientName', function (data) {
