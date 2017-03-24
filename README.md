@@ -1,5 +1,5 @@
 # MUN-chat 
-Motivation: Since our cultural fest in 2016, we wanted to moved most of the on paper stuff done in our college to a better online system, that would save human time and efforts and would help in keeping everything on track.
+Motivation: Since our cultural fest in 2016, we wanted to move most of the on paper stuff done in our college to a better online system, that would save human time and efforts and would help in keeping everything on track.
 
 This chit passing application built for VITCMUN 2017 stands for the above idea and removed the system of using paper chits to transfer information within the councils.
 
