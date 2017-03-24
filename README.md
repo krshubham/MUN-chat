@@ -8,7 +8,7 @@ I have used Babel for transpiling some ES6 features to ES5 code.
 + Make sure babel-cli is installed using ``` npm install -g babel-cli ```
 + Package manager being used is yarn, although you can use npm.
 + Run ```yarn``` and all packages will be installed.
-+ Run ```npm run build`` and the source code will be transpiled into **lib** folder
++ Run ```npm run build``` and the source code will be transpiled into **lib** folder
 + Make sure mongodb is installed if not, then refer mongodb documentation on installing it on your local machine. With the MongoDB running,
 + ``` npm run db ```
 + Finally ``` npm start ```

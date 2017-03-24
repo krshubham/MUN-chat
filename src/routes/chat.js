@@ -6,7 +6,7 @@ import assert from 'assert';
 import app from '../app';
 import server from '../app';
 const io = require('socket.io')(server);
-const secret = 'R3Dcherrylovesg@@k';
+const secret = 'somecoolsecret';
 
 function init(req, res) {
     const token = req.params.token;

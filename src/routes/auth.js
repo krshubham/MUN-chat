@@ -4,7 +4,7 @@ import xss from 'xss';
 import db from '../db';
 import * as jwt from 'jsonwebtoken';
 
-const secret = 'R3Dcherrylovesg@@k';
+const secret = 'somecoolsecret';
 
 
 function login(req, res) {

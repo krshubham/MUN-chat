@@ -4,7 +4,7 @@
 
 import maindb from '../db';
 import * as jwt from 'jsonwebtoken';
-const secret = 'R3Dcherrylovesg@@k';
+const secret = 'somecoolsecret';
 import assert from 'assert';
 import xss from 'xss';
 
