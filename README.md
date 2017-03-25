@@ -1,3 +1,5 @@
+The demo can be found [here](http://35.154.189.91:9876)
+
 # MUN-chat 
 Motivation: Since our cultural fest in 2016, we wanted to move most of the on paper stuff done in our college to a better online system, that would save human time and efforts and would help in keeping everything on track.
 
